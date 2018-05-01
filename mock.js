@@ -13,16 +13,24 @@ const readconfigModule = require('./readconfig.js');
 const getkeyModule = require('./getkey.js');
 const writecredModule = require('./writecred.js');
 
+
+//------ CHECK FOR UNHANDLED REJECTION PROMISE --------
+process.on("unhandledRejection", (reason,p) => { console.log(p);});
+
+//------- SET PROXY SERVER
 proxyserver = process.env.http_proxy;
-
-
-process.on("unhandledRejection", (reason,p) => { console.log(p) }); 
 
 
 //------ THE INITIAL CALL TO READ CONFIG FILE -----
 if (proxyserver != undefined){
-    hostname = proxyserver.substring(7,proxyserver.length-5);
-    port = proxyserver.substring(proxyserver.length-4, proxyserver.length);
+
+    //--------- EXTRACT RELEVANT PARAMETERS ---------
+    slash = proxyserver.indexOf("//");
+    colon = proxyserver.lastIndexOf(":");
+    hostname = proxyserver.substring(slash + 2, colon).trim();
+    port = parseInt(proxyserver.substring(colon + 1 , proxyserver.length).trim());
+
+    //------- BUILD A TUNNEL FOR THE PORT --------------
     var tunnelingAgent = tunnel.httpsOverHttp({
         proxy: {
             host: hostname,
@@ -30,7 +38,7 @@ if (proxyserver != undefined){
         }
     });
     AWS.config.httpOptions = { agent: tunnelingAgent };
-    callConfig();
+
 }
 else{
     console.log("[Error: ] The proxy is not defined");
@@ -47,7 +55,6 @@ fs.watchFile(config, (curr, prev) => {
 //------- GET PROFILE FROM CONFIG FILE -----
 function callConfig(){
     readconfigModule.read_config().then(datacsv => {
-
         //-------- WHEN CONFIG IS MODIFIED, MODIFY TIMEOUT -----
         var timeoutTarget = timeouts.map(x => x.target);
         var datacsvTarget = datacsv.map(x => x.target);
@@ -85,7 +92,7 @@ async function execute(args){
 function Processor(args){
     // console.log("The number should not increase", timeouts.length);
     var localargs = args
-     console.log("args is ", args[0]);
+    // console.log("args is ", args[0]);
     return getkeyModule.getJSON(localargs).then(async function (retVal){
 
 
