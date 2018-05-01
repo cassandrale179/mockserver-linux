@@ -127,7 +127,8 @@ function getJSON(args){
 
         //------- IF IT'S A CREDENTIAL SOURCE -------
         else if (p.hasOwnProperty("credential_source")){
-            return credentialSource(p);
+            if (p.credential_source == 'Ec2InstanceMetadata')
+                return credentialSource(p);
         }
 
         //-------- IF IT'S A SOURCE PROFILE --------
