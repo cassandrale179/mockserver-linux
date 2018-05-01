@@ -4,6 +4,7 @@ const tunnel = require('tunnel');
 const moment = require('moment');
 const AWS = require('aws-sdk');
 const os = require('os');
+const { URL } = require('url');
 const config = os.homedir() + "//.aws/config";
 const read_promise = util.promisify(fs.readFile);
 const write_promise = util.promisify(fs.writeFile);
@@ -13,38 +14,28 @@ const readconfigModule = require('./readconfig.js');
 const getkeyModule = require('./getkey.js');
 const writecredModule = require('./writecred.js');
 
+//------ GLOBAL VARIABLES -----
+var timeouts = [];
 
 //------ CHECK FOR UNHANDLED REJECTION PROMISE --------
 process.on("unhandledRejection", (reason,p) => { console.log(p);});
 
-//------- SET PROXY SERVER
-proxyserver = process.env.http_proxy;
 
-
-//------ THE INITIAL CALL TO READ CONFIG FILE -----
-if (proxyserver != undefined){
-    console.log(proxyserver); 
-    //--------- EXTRACT RELEVANT PARAMETERS ---------
-    slash = proxyserver.indexOf("//");
-    colon = proxyserver.lastIndexOf(":");
-    hostname = proxyserver.substring(slash + 2, colon).trim();
-    port = parseInt(proxyserver.substring(colon + 1 , proxyserver.length).trim());
-
-    //------- BUILD A TUNNEL FOR THE PORT --------------
+//------- BUILD A TUNNEL FOR THE PORT --------------
+if (process.env.http_proxy != undefined){
+    var proxy = new URL(process.env.http_proxy);
     var tunnelingAgent = tunnel.httpsOverHttp({
         proxy: {
-            host: hostname,
-            port: port
+            host: proxy.hostname,
+            port: proxy.port
         }
     });
     AWS.config.httpOptions = { agent: tunnelingAgent };
-    callConfig(); 
+    callConfig();
 }
-else{
-    console.log("[Error: ] The proxy is not defined");
-}
+else console.log("[Error: ] The proxy is not defined");
 
-var timeouts = [];
+
 
 //------- HAVE A WATCH FUNCTION THAT MONITOR CHANGE ----
 fs.watchFile(config, (curr, prev) => {
