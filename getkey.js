@@ -99,6 +99,7 @@ function checkFileRole(p, json){
                         else {
                             if (data.Credentials){
                                 data.Credentials.target = p.target;
+				console.log("Data credentials", data.Credentials); 
                                 resolve(data.Credentials);
                             }
                             else{
@@ -123,9 +124,13 @@ function getJSON(args){
             var localContextFunction = function(p2){ return function (output) {
                 var stdout = output.stdout;
                 var stderr = output.stderr;
-                var result = (JSON.parse(stdout));
+		var result = JSON.parse(stdout);
                 if (result){
+	            if (typeof result == 'string') result = JSON.parse(result); 
+		    console.log("Type of result", typeof result); 
                     result.target = p2.target;
+		    console.log("Result target, p2.target", result.target, p2.target); 
+		    console.log("Result of credential process", result); 
                     resolve(result);
 		    return;
                 }
@@ -168,15 +173,25 @@ function getJSON(args){
     promise.then(json => {
         return new Promise(function(resolve2, reject2){
         if (!json){
-            console.log("JSON IS UNDEFINED!", json, args);
 	    reject2("JSON IS UNDEFINED");
 	    return;
-        }
-	else if (json.hasOwnProperty('SecretAccessKey')== false){
-	    console.log("JSON doesn't have key", json); 
-	    reject2("NO KEY RECEIVED! JSON IS "+ json, json);
+        };
+	
+	//----------- CONVERT JSON IN CASE IT'S NOT AN OBJECT --------- 
+	if (typeof json == 'string'){
+	try{
+	  json =  JSON.parse(json);
+	  console.log(typeof json); 
+	}
+	catch(err) { reject2 (err) }} 
+
+	//------------- IF USER IS UNAUTHORIZED TO GET DATA ---------- 
+	if (json.hasOwnProperty('SecretAccessKey')== false){ 
+	    reject2("NO KEY RECEIVED, json is " + JSON.stringify(json));
 	    return;
 	}
+
+	//------------- IF THERE ARE ASSUME ROLE ------------ 
         if (args[0].assume_role_arn && json){
             console.log("ASSUME ROLE AND JSON ARE VALID TO MAKE CALL", json);
             return checkFileRole(args[0], json);

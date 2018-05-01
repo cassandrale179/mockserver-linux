@@ -90,11 +90,16 @@ async function execute(args){
 }
 
 function Processor(args){
-    // console.log("The number should not increase", timeouts.length);
+    console.log("The number of timeout", timeouts.length);
     var localargs = args
     // console.log("args is ", args[0]);
     return getkeyModule.getJSON(localargs).then(async function (retVal){
-
+	if (typeof retVal == 'string'){ 
+            try{
+	        retVal = JSON.parse(retVal); 
+       	    }catch(err){reject(err)}
+	}
+	//console.log("TYPE OF RETURN VALUE", typeof retVal); 
 
         //------------- EXTRACT RELEVANT PARAMETERS ------------
         var target = retVal.target;
@@ -104,7 +109,8 @@ function Processor(args){
         var exp = retVal.Expiration; //? optional
 
         console.log("Return value", retVal);
-
+	//console.log("Access and sercet key", retVal.AccessKeyId, retVal.SecretAccessKey);
+	console.log("Value of access and secret and target", access, secret, target);
         if (access && secret){
 
             //-------------- IF EXPIRATION EXIST, THEN CALCULTE WHEN IT EXPIRES ---------
@@ -138,6 +144,9 @@ function Processor(args){
             }
             console.log("-----------------------------------------");
         }
+	else{
+	    console.log("no access key and secret key", retVal); 
+	}
     }).catch((err) => {
         console.error(err);
         reject(err);
