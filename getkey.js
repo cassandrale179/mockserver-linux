@@ -7,6 +7,8 @@ const AWS = require('aws-sdk');
 const url = 'http://169.254.169.254/latest/meta-data/iam/security-credentials/';
 
 
+process.on('unhandledRejection', (reason, p) => {console.log(p)}); 
+
 //--------------- FIX AWS PATH -------------
 var AWSPath = "";
 if (process.platform == 'win32') AWSPath = os.homedir() + "\\.aws\\TempCredScript.js --tcws_url=";

@@ -16,6 +16,8 @@ const writecredModule = require('./writecred.js');
 proxyserver = process.env.http_proxy;
 
 
+process.on("unhandledRejection", (reason,p) => { console.log(p) }); 
+
 
 //------ THE INITIAL CALL TO READ CONFIG FILE -----
 if (proxyserver != undefined){
