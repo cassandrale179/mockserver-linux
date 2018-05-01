@@ -7,7 +7,7 @@ const AWS = require('aws-sdk');
 const url = 'http://169.254.169.254/latest/meta-data/iam/security-credentials/';
 
 
-process.on('unhandledRejection', (reason, p) => {console.log(p)}); 
+//process.on('unhandledRejection', (reason, p) => {console.log(p)}); 
 
 //--------------- FIX AWS PATH -------------
 var AWSPath = "";
@@ -44,12 +44,14 @@ function credentialSource(args){
                    }
                    else{
                        console.log('Could not get data with the given role');
-                       //reject
+                       reject(data); 
+		       return; 
                    }
                });
             }
             else{
-                console.log('Could not get role name');
+                reject('Could not get role name', body);
+		return; 
             }
         });
     });
@@ -155,7 +157,6 @@ function getJSON(args){
         }
 
         else{
-            console.log('[Error: ] There are no ways to get credentials');
 	    // this shouldn't happen here.... Catch it at parsing, not in processor.
 	    reject("credential_source, source_profile or credential_process not found for "+p);
 	    return;
@@ -172,10 +173,10 @@ function getJSON(args){
 	    return;
         }
 	else if (!json.SecretAccessKey){
-	    reject2("NO KEY RECEIVED! JSON IS "+json);
+	    reject2("NO KEY RECEIVED! JSON IS "+ json, json);
 	    return;
 	}
-        else if (args[0].assume_role_arn && json){
+        if (args[0].assume_role_arn && json){
             console.log("ASSUME ROLE AND JSON ARE VALID TO MAKE CALL", json);
             return checkFileRole(args[0], json);
         }

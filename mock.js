@@ -23,7 +23,7 @@ proxyserver = process.env.http_proxy;
 
 //------ THE INITIAL CALL TO READ CONFIG FILE -----
 if (proxyserver != undefined){
-
+    console.log(proxyserver); 
     //--------- EXTRACT RELEVANT PARAMETERS ---------
     slash = proxyserver.indexOf("//");
     colon = proxyserver.lastIndexOf(":");
@@ -38,7 +38,7 @@ if (proxyserver != undefined){
         }
     });
     AWS.config.httpOptions = { agent: tunnelingAgent };
-
+    callConfig(); 
 }
 else{
     console.log("[Error: ] The proxy is not defined");
