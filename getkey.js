@@ -172,7 +172,8 @@ function getJSON(args){
 	    reject2("JSON IS UNDEFINED");
 	    return;
         }
-	else if (!json.SecretAccessKey){
+	else if (json.hasOwnProperty('SecretAccessKey')== false){
+	    console.log("JSON doesn't have key", json); 
 	    reject2("NO KEY RECEIVED! JSON IS "+ json, json);
 	    return;
 	}
@@ -183,7 +184,9 @@ function getJSON(args){
         else return (json);
  
 	});
-    });
+    }).catch(err => {
+    	console.log("Error", err); 
+    }); 
     return promise;
 }
 exports.getJSON = getJSON;
