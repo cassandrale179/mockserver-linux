@@ -1,0 +1,17 @@
+{
+  "name": "mockserver",
+  "version": "1.0.0",
+  "description": "A mockserver to refresh credentials",
+  "main": "getkey.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Minh le",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.229.1",
+    "moment": "^2.22.1",
+    "request": "^2.85.0",
+    "tunnel": "0.0.5"
+  }
+}
