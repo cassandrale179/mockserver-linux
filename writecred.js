@@ -3,10 +3,12 @@ const util = require('util');
 const moment = require('moment');
 const os = require('os');
 
+//--------- WRITE CREDENTIALS MODIFICATION ------ 
 var cred = "";
-if (process.platform == 'win32') cred = os.homedir() + "//.aws/credentials";
+if (process.platform == 'win32')
+    cred = os.homedir() + "//.aws/credentials";
 else{
-    cred = os.homedir() + "/.aws/credentials"; 
+    cred = os.homedir() + "/.aws/credentials";
 }
 const read_promise = util.promisify(fs.readFile);
 const write_promise = util.promisify(fs.writeFile);
@@ -50,7 +52,7 @@ async function writeFile(args){
             console.log('[Error: ] There is nothing to write to credentials file');
         }
     }).catch((err) => {
-        console.log(err); 
+        console.log(err);
     })
 }
 /* jshint ignore:start */

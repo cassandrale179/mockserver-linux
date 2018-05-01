@@ -81,36 +81,33 @@ async function execute(args){
 }
 
 function Processor(args){
-    console.log("The number of timeout", timeouts.length);
-    var localargs = args
-    // console.log("args is ", args[0]);
+    var localargs = args;
     return getkeyModule.getJSON(localargs).then(async function (retVal){
-	if (typeof retVal == 'string'){ 
-            try{
-	        retVal = JSON.parse(retVal); 
-       	    }catch(err){reject(err)}
+	if (typeof retVal == 'string'){
+        try{ retVal = JSON.parse(retVal); }
+        catch(err){reject(err); }
 	}
-	//console.log("TYPE OF RETURN VALUE", typeof retVal); 
 
         //------------- EXTRACT RELEVANT PARAMETERS ------------
         var target = retVal.target;
         var access = retVal.AccessKeyId;
         var secret = retVal.SecretAccessKey;
-        var token = retVal.SessionToken; //? optional
-        var exp = retVal.Expiration; //? optional
+        var token = retVal.SessionToken;
+        var exp = retVal.Expiration;
 
         console.log("Return value", retVal);
-	//console.log("Access and sercet key", retVal.AccessKeyId, retVal.SecretAccessKey);
-	console.log("Value of access and secret and target", access, secret, target);
+        console.log("Value of access and secret and target", access, secret, target);
+
+
         if (access && secret){
 
             //-------------- IF EXPIRATION EXIST, THEN CALCULTE WHEN IT EXPIRES ---------
             if (exp){
                 var now = moment();
                 var expiration = moment(retVal.Expiration);
-                var timetoRun = expiration.subtract(1, 'minutes'); //run 5 minute before date expires
-                var delayMoment = moment.duration(timetoRun.diff(now)); //calculate how much time to delay from now
-                var delay = parseFloat(delayMoment.asSeconds())*1000; //convert to miliseconds
+                var timetoRun = expiration.subtract(2, 'minutes');
+                var delayMoment = moment.duration(timetoRun.diff(now));
+                var delay = parseFloat(delayMoment.asSeconds())*1000;
 
                 console.log("Time this will run", timetoRun.format('LLLL'));
 
@@ -136,7 +133,7 @@ function Processor(args){
             console.log("-----------------------------------------");
         }
 	else{
-	    console.log("no access key and secret key", retVal); 
+	    console.log("no access key and secret key", retVal);
 	}
     }).catch((err) => {
         console.error(err);
