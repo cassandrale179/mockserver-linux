@@ -2,9 +2,9 @@
 Mockserver is a Node.js program that allow user to refresh their AWS credential file based on a given configuration file on EC2 instances. 
 
 ## Prerequesites 
-1. Node v.8.11 or higher
-2. curl 
-3. Installing the following node module packages:   
+1. [Node v.8.11](https://nodejs.org/en/) or higher
+2. [curl](https://curl.haxx.se/) or just do *yum install curl* on Amazon Linux  
+3. Once Node is installed, make sure to have these packages:   
 
 ```
 npm install moment
@@ -30,9 +30,6 @@ To run the program simply located the folder and type:
  ```
  $ node mock.js 
  ``` 
- 
-
-    
  
 ## Folder structure:
     mockserver/
