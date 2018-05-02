@@ -4,6 +4,7 @@ const os = require('os');
 const exec = util.promisify(require('child_process').exec);
 const request = require('request');
 const AWS = require('aws-sdk');
+const tunnel = require('tunnel');
 const url = 'http://169.254.169.254/latest/meta-data/iam/security-credentials/';
 const http = require('http');
 
@@ -97,7 +98,7 @@ else AWSPath = os.homedir() + "/.aws/TempCredScript.js --tcws_url=";
 
 //---------- get instance metadata ------
 function ec2instance(p){
-    console.log("EC2 instance metada is being called"); 
+    console.log("EC2 instance metada is being called");
     request({'url':url,
         'proxy':'http://169.254.169.254/'}, function (error, response, body) {
         console.log("Error", error);
