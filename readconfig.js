@@ -112,8 +112,40 @@ function read_config(){
                     result.push(nocred_obj);
                 }
             });
+
+        //------  CHECKING FOR SOURCE PROFILE INFINITE LOOP ------
+        let nodes = {};
+        let chain = false;
+        result.forEach((prof) => {
+            if (prof.source_profile)
+                nodes[prof.source] = prof.source_profile;
+            });
+        for (var key in nodes){
+          let l = [key];
+          let curr = key;
+          while (curr){
+              if (nodes.hasOwnProperty(curr)){
+                  let par = nodes[curr];
+                  if (l.indexOf(par) == -1){
+                     l.push(par);
+                     curr = par;
+                  }
+                  else{
+                    chain = true;
+                    console.error('[Error: ] Source profile linked back to each other');
+                    break;
+                  }
+              }
+              else break;
+          }
+        }
+
+        //-------- IF EVERYTHING IS GOOD, RESOLVE RESULT -----
+        if (chain == false){
+            console.log('No chain detetced');
             resolve(result);
-        }).catch(err => console.log('Error: No config file')); 
+        }
+        }).catch(err => console.log('Error: No config file'));
     });
 }
 exports.read_config = read_config;
