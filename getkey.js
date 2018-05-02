@@ -35,6 +35,7 @@ function ec2instance(p){
                         var data = JSON.parse(body2);
                         if (data.AccessKeyId && data.SecretAccessKey){
                             console.log("Successfully get JSON data");
+			    data.target = p.target; 
                             resolve(data);
                         }
                         else{
@@ -135,7 +136,7 @@ function getJSON(args){
         //------- IF IT'S A CREDENTIAL SOURCE -------
         else if (p.hasOwnProperty("credential_source")){
             if (p.credential_source == 'Ec2InstanceMetadata')
-                return ec2instance(p);
+                resolve(ec2instance(p));  
         }
 
         //-------- IF IT'S A SOURCE PROFILE --------
@@ -157,11 +158,14 @@ function getJSON(args){
 
     //------------ IF IT HAS AN ASSUME ROLE, CALLED CHECK FILE ROLE ---------
     promise.then(json => {
+    	console.log("promise then clause run!!!!!!"); 
         return new Promise(function(resolve2, reject2){
         if (!json){
     	    reject2("JSON IS UNDEFINED");
     	    return;
         }
+
+	console.log("JSON value", json); 
 
     	//----------- CONVERT JSON IN CASE IT'S NOT AN OBJECT ---------
     	if (typeof json == 'string'){
