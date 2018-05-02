@@ -88,6 +88,7 @@ function Processor(args){
         catch(err){reject(err); }
 	}
 
+
         //------------- EXTRACT RELEVANT PARAMETERS ------------
         var target = retVal.target;
         var access = retVal.AccessKeyId;
