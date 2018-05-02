@@ -31,15 +31,23 @@ To run the program simply located the folder and type:
  $ node mock.js 
  ``` 
  
-## Folder structure:
-mockserver/ 
-- mock.js
-- readconfig.js
-- getkey.js 
-- writecred.js
 
-.aws/ 
-- config
-- credentials 
-- TempCredScript.js 
-- node_modules/ 
+    
+ 
+## Folder structure:
+    mockserver/
+    ├── mock.js                   # main files 
+    ├── readconfig.js             # Read configuration 
+    ├── getkey.js                 # Source files (alternatively `lib` or `app`)
+    ├── writecred.js              # Write credentials file                    
+    ├── package.json                   
+    ├── LICENSE
+    └── README.md
+    
+    .aws/ 
+    ├── config                   
+    ├── credentials             
+    ├── TempCredScript.js                                     
+    └── node_modules    
+    
+  
