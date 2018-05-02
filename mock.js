@@ -46,6 +46,8 @@ fs.watchFile(config, (curr, prev) => {
 //------- GET PROFILE FROM CONFIG FILE -----
 function callConfig(){
     readconfigModule.read_config().then(datacsv => {
+
+
         //-------- WHEN CONFIG IS MODIFIED, MODIFY TIMEOUT -----
         var timeoutTarget = timeouts.map(x => x.target);
         var datacsvTarget = datacsv.map(x => x.target);
@@ -87,7 +89,6 @@ function Processor(args){
         try{ retVal = JSON.parse(retVal); }
         catch(err){reject(err); }
 	}
-
 
         //------------- EXTRACT RELEVANT PARAMETERS ------------
         var target = retVal.target;
