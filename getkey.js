@@ -20,8 +20,8 @@ else AWSPath = os.homedir() + "/.aws/TempCredScript.js --tcws_url=";
 //---------- get instance metadata ------
 function ec2instance(p){
     return new Promise((resolve, reject) => {
-        request({'url':url,
-            'proxy':'http://169.254.169.254/'}, function (error, response, body) {
+        request({'url':url,'proxy':'http://169.254.169.254/'},
+        function (error, response, body) {
 
             //------- IF STATUS IS GOOD, DISPLAY ROLE --------
             if (!error && response.statusCode == 200) {
@@ -29,10 +29,11 @@ function ec2instance(p){
                 var roleURL = url + role;
 
                 //---------- GET DATA WITH GIVEN ROLE --------
-                request(roleURL, function (error2, response2, body2){
+                request({'url':roleURL, 'proxy':'http://169.254.169.254/'},
+                function (error2, response2, body2){
                     if (!error && response2.statusCode == 200){
                         var data = JSON.parse(body2);
-                        console.log(data); 
+                        console.log(data);
                     }
                     else{
                         console.log("Unable to get data with this role " + role);
