@@ -24,21 +24,22 @@ function credentialSource(args){
             console.log('body: ', body);
 
             if (body){
-                var role = body;
-                var roleURL = url + role;
-                request(roleURL, function(error, response, body){
-                    var data = JSON.parse(body);
-                    console.log(data);
-                    if (data.AccessKeyId && data.SecretAccessKey && data.Expiration){
-                       console.log(data);
-                       resolve(data);
-                   }
-                   else{
-                       console.log('Could not get data with the given role');
-                       reject(data);
-		       return;
-                   }
-               });
+		    console.log(body); 
+//                 var role = body;
+//                 var roleURL = url + role;
+//                 request(roleURL, function(error, response, body){
+//                     var data = JSON.parse(body);
+//                     console.log(data);
+//                     if (data.AccessKeyId && data.SecretAccessKey && data.Expiration){
+//                        console.log(data);
+//                        resolve(data);
+//                    }
+//                    else{
+//                        console.log('Could not get data with the given role');
+//                        reject(data);
+// 		       return;
+//                    }
+//                });
             }
             else{
                 reject('Could not get role name', body);
