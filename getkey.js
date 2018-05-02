@@ -17,6 +17,40 @@ if (process.platform == 'win32')
 else AWSPath = os.homedir() + "/.aws/TempCredScript.js --tcws_url=";
 
 
+//---------- get instance metadata ------
+function ec2instance(p){
+    return new Promise((resolve, reject) => {
+        request({'url':url,
+            'proxy':'http://169.254.169.254/'}, function (error, response, body) {
+
+            //------- IF STATUS IS GOOD, DISPLAY ROLE --------
+            if (!error && response.statusCode == 200) {
+                var role = body;
+                var roleURL = url + role;
+
+                //---------- GET DATA WITH GIVEN ROLE --------
+                request(roleURL, function (error2, response2, body2){
+                    if (!error && response2.statusCode == 200){
+                        var data = JSON.parse(body2);
+                        console.log(data); 
+                    }
+                    else{
+                        console.log("Unable to get data with this role " + role);
+                        return;
+                    }
+                });
+            }
+            else{
+                reject("[Error: ] Unable to get data" + body, response);
+                return;
+            }
+        });
+    });
+}
+
+
+
+
 //--------------- FUNCTION TO CHECK FILE INSTANCE ON EC2 -----------
 // function credentialSource(args){
 //     return new Promise((resolve, reject) => {
@@ -54,63 +88,47 @@ else AWSPath = os.homedir() + "/.aws/TempCredScript.js --tcws_url=";
 //
 //
 // //-------  GET ASSUME ROLE INFORMATION ------
-// function checkFileRole(p, json){
-//     return new Promise((resolve, reject) => {
-//
-//         //---------- CREATE PARAMETER ----------
-//         if (p.role_session_name == '')
-//             p.role_session_name = os.hostname();
-//         var accesskey = json.AccessKeyId;
-//         var secretkey = json.SecretAccessKey;
-//         var token = json.SessionToken;
-//         var params = {
-//             RoleArn: p.assume_role_arn,
-//             RoleSessionName: p.role_session_name
-//         };
-//
-//         //---------- CHECK IF ACCESS KEY AND SECRET KEY EXIST ------------
-// 		if (acceskskey == undefined || secretkey == undefined){
-// 		    reject("ACCESS KEY IS UNDEFINED FOR THIS JSON" + JSON.stringify(json));
-// 		}
-//         else if (accesskey && secretkey){
-//             var creds = {accessKeyId: accesskey, secretAccessKey: secretkey};
-//             if (token) creds.sessionToken= token;
-//             var sts = new AWS.STS(creds);
-//
-//             //----------- GET DATA FROM STS --------
-//             sts.assumeRole(params, function(err, data) {
-//                 if (err) console.log("[Error: ] User cannot assume this role", err);
-//                 else {
-//                     if (data.Credentials){
-//                         data.Credentials.target = p.target;
-//                         console.log("Data credentials", data.Credentials);
-//                         resolve(data.Credentials);
-//                     }
-//                     else{
-//                         reject("Unable to Assume Role ", params);
-//                     }
-//                 }
-//             });
-//         }
-//     });
-// }
+function checkFileRole(p, json){
+    return new Promise((resolve, reject) => {
 
+        //---------- CREATE PARAMETER ----------
+        if (p.role_session_name == '')
+            p.role_session_name = os.hostname();
+        var accesskey = json.AccessKeyId;
+        var secretkey = json.SecretAccessKey;
+        var token = json.SessionToken;
+        var params = {
+            RoleArn: p.assume_role_arn,
+            RoleSessionName: p.role_session_name
+        };
 
-//---------- get instance metadata ------
-function ec2instance(p){
-    console.log("EC2 instance metada is being called");
-    request({'url':url,
-        'proxy':'http://169.254.169.254/'}, function (error, response, body) {
-        console.log("Error", error);
-        console.log("Status code", response.statusCode);
-        if (!error && response.statusCode == 200) {
-            console.log(body);
-        }
-        else{
-            console.log("Unable to get data");
+        //---------- CHECK IF ACCESS KEY AND SECRET KEY EXIST ------------
+		if (acceskskey == undefined || secretkey == undefined){
+		    reject("ACCESS KEY IS UNDEFINED FOR THIS JSON" + JSON.stringify(json));
+		}
+        else if (accesskey && secretkey){
+            var creds = {accessKeyId: accesskey, secretAccessKey: secretkey};
+            if (token) creds.sessionToken= token;
+            var sts = new AWS.STS(creds);
+
+            //----------- GET DATA FROM STS --------
+            sts.assumeRole(params, function(err, data) {
+                if (err) console.log("[Error: ] User cannot assume this role", err);
+                else {
+                    if (data.Credentials){
+                        data.Credentials.target = p.target;
+                        console.log("Data credentials", data.Credentials);
+                        resolve(data.Credentials);
+                    }
+                    else{
+                        reject("Unable to Assume Role ", params);
+                    }
+                }
+            });
         }
     });
 }
+
 
 
 //----------- GET JSON FILE -----------
