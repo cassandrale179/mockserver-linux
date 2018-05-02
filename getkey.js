@@ -33,10 +33,17 @@ function ec2instance(p){
                 function (error2, response2, body2){
                     if (!error && response2.statusCode == 200){
                         var data = JSON.parse(body2);
-                        console.log(data);
+                        if (data.AccessKeyId && data.SecretAccessKey){
+                            console.log("Successfully get JSON data");
+                            resolve(data);
+                        }
+                        else{
+                            reject("[Error: ] JSON doesn't contain valid key" + data);
+                            return;
+                        }
                     }
                     else{
-                        console.log("Unable to get data with this role " + role);
+                        reject("[Error: ] Unable to get data with this role " + role);
                         return;
                     }
                 });
@@ -49,46 +56,7 @@ function ec2instance(p){
     });
 }
 
-
-
-
-//--------------- FUNCTION TO CHECK FILE INSTANCE ON EC2 -----------
-// function credentialSource(args){
-//     return new Promise((resolve, reject) => {
-//         request(url, function(error, response, body){
-//             console.log('error', error);
-//             console.log('statusCode:', response && response.statusCode);
-//             console.log('body: ', body);
-//
-//             if (body){
-//                 console.log("This is body response");
-//                //  var role = body;
-//                //  var roleURL = url + role;
-//                //  request(roleURL, function(error, response, body){
-//                //      var data = JSON.parse(body);
-//                //      console.log(data);
-//                //      if (data.AccessKeyId && data.SecretAccessKey && data.Expiration){
-//                //         console.log(data);
-//                //         resolve(data);
-//                //     }
-//                //     else{
-//                //         console.log('Could not get data with the given role');
-//                //         reject(data);
-// 		       // return;
-//                //     }
-//                // });
-//             }
-//             else{
-//                 reject('Could not get role name', body);
-// 		return;
-//             }
-//         });
-//     });
-// }
-//
-//
-//
-// //-------  GET ASSUME ROLE INFORMATION ------
+//-------  GET ASSUME ROLE INFORMATION ------
 function checkFileRole(p, json){
     return new Promise((resolve, reject) => {
 
