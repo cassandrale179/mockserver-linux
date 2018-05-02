@@ -4,6 +4,7 @@ const os = require('os');
 const exec = util.promisify(require('child_process').exec);
 const request = require('request');
 const AWS = require('aws-sdk');
+const tunnel = require('tunnel'); 
 const url = 'http://169.254.169.254/latest/meta-data/iam/security-credentials/';
 
 process.on('unhandledRejection', (reason, p) => {console.log(p);});
@@ -17,13 +18,14 @@ else AWSPath = os.homedir() + "/.aws/TempCredScript.js --tcws_url=";
 
 //--------------- FUNCTION TO CHECK FILE INSTANCE ON EC2 -----------
 function credentialSource(args){
+    console.log("This is the proxy", process.env.http_proxy); 
     return new Promise((resolve, reject) => {
         request(url, function(error, response, body){
             console.log('error', error);
             console.log('statusCode:', response && response.statusCode);
             console.log('body: ', body);
 
-            if (body){
+            if (body && response.statusCode >= 200 && response.statusCode <= 266){
 		    console.log(body); 
 //                 var role = body;
 //                 var roleURL = url + role;
