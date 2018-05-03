@@ -13,5 +13,6 @@
     "moment": "^2.22.1",
     "request": "^2.85.0",
     "tunnel": "0.0.5"
-  }
+    },
+    "bin": "mockserver-aws"
 }
