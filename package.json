@@ -10,9 +10,11 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.229.1",
+    "inquirer": "^5.2.0",
     "moment": "^2.22.1",
+    "prompt-autocompletion": "^0.1.2",
     "request": "^2.85.0",
     "tunnel": "0.0.5"
-    },
-    "bin": "mockserver-aws"
+  },
+  "bin": "mockserver-aws"
 }
