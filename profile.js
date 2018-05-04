@@ -44,7 +44,10 @@ readconfigModule.read_config().then(datacsv => {
               });
             }
             else{
-              console.log("Set environment on Linux");
+              var command = 'export AWS_PROFILE=' + answer; 
+	      write_promise('tst', command, 'utf8').then(success => {
+	      	console.log("Successful write to tst"); 
+	      }); 
             }
         });
 
