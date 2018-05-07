@@ -9,9 +9,15 @@ const config = os.homedir() + "//.aws/config";
 const exec = require('child_process').exec;
 const write_promise = util.promisify(fs.writeFile);
 
-//--------- LIST OF AVAILABLE PROFILES ------
+//--------- LIST OF GLOBAL VARIABLES ------
 var data = [];
 var options = [];
+var p  = "";
+
+//--------- CAPTURE ARGUMENT ON CLI -------
+if (process.argv.length >= 2){
+    p = process.argv[2];
+}
 
 //--------- PARSING THE CONFIG AND CREDENTIAL FILE --------
 readconfigModule.read_config().then(datacsv => {
@@ -26,6 +32,12 @@ readconfigModule.read_config().then(datacsv => {
             });
         }
     });
+
+    //----------- FILTER ARRAY ----------
+    if (p){
+        result = data.filter(word => word.toLowerCase().indexOf(p) != -1);
+        data = result;
+    }
 
     //----------- AUTOCOMPLETE FORM ----------
     var autocomplete = new AutoComplete({
@@ -45,7 +57,7 @@ readconfigModule.read_config().then(datacsv => {
           });
         }
         else{
-          var command = 'export AWS_PROFILE=' + answer;
+        var command = 'export AWS_PROFILE=' + answer;
       write_promise('tst', command, 'utf8').then(success => {
         console.log("Successful write to tst");
       });
