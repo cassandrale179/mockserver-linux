@@ -1,1 +1,2 @@
-echo tst
+node profile.js
+. tst 

@@ -1,1 +1,1 @@
-export AWS_PROFILE=bms-web-mock9
+export AWS_PROFILE=bms-main
