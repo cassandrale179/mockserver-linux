@@ -31,6 +31,25 @@ To run the program simply located the folder and type:
  $ node mock.js 
  ``` 
  
+If you want to browse a list of profile, and set a default AWS_PROFILE:
+On Windows, run execute.bat 
+```
+execute
+``` 
+On Linux, run execute.sh 
+```
+$ . execute.sh 
+``` 
+
+Also, if you want to run the mockserver globally, do:
+```
+npm install -g file:mockserver.tar
+```
+
+Then simply type mockserver to run the program 
+
+
+
 ## Folder structure:
     mockserver/
     ├── mock.js                   # main files 

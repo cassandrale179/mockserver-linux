@@ -1,1 +1,1 @@
-export AWS_PROFILE=bms-main
+export AWS_PROFILE=bms-lab-mock4
