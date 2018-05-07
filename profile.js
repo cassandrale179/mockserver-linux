@@ -25,46 +25,46 @@ readconfigModule.read_config().then(datacsv => {
                 data.push(target);
             });
         }
+    });
 
-        //----------- AUTOCOMPLETE FORM ----------
-        var autocomplete = new AutoComplete({
-          type: 'autocomplete',
-          name: 'from',
-          message: 'Select a profile: ',
-          source: searchProfiles
-        });
-
-
-
-        autocomplete.run().then(function(answer) {
-            if (os.platform == 'win32'){
-              var command = 'set AWS_PROFILE=' + answer;
-              write_promise('win.bat', command, 'utf8').then(success =>{
-                  console.log("Successfully set profile");
-              });
-            }
-            else{
-              var command = 'export AWS_PROFILE=' + answer; 
-	      write_promise('tst', command, 'utf8').then(success => {
-	      	console.log("Successful write to tst"); 
-	      }); 
-            }
-        });
+    //----------- AUTOCOMPLETE FORM ----------
+    var autocomplete = new AutoComplete({
+      type: 'autocomplete',
+      name: 'from',
+      message: 'Select a profile: ',
+      source: searchProfiles
+    });
 
 
 
-        //----------- FUNCTION TO FILTER AND FIND PROFILE ----------
-        function searchProfiles(answers, input) {
-            return new Promise(function(resolve) {
-              resolve(data.filter(filter(input)));
-            });
+    autocomplete.run().then(function(answer) {
+        if (os.platform == 'win32'){
+          var command = 'set AWS_PROFILE=' + answer;
+          write_promise('win.bat', command, 'utf8').then(success =>{
+              console.log("Successfully set profile");
+          });
         }
-        function filter(input) {
-            return function(state) {
-              return new RegExp(input, 'i').exec(state) !== null;
-            };
+        else{
+          var command = 'export AWS_PROFILE=' + answer;
+      write_promise('tst', command, 'utf8').then(success => {
+        console.log("Successful write to tst");
+      });
         }
     });
+
+
+
+    //----------- FUNCTION TO FILTER AND FIND PROFILE ----------
+    function searchProfiles(answers, input) {
+        return new Promise(function(resolve) {
+          resolve(data.filter(filter(input)));
+        });
+    }
+    function filter(input) {
+        return function(state) {
+          return new RegExp(input, 'i').exec(state) !== null;
+        };
+    }
 }).catch(err => {
     console.log('[Error: ] Unable to read config file');
 });
