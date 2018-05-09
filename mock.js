@@ -2,6 +2,7 @@
 module.exports = mock;
 
 //------- LIBRARY TO INSTALL --------
+const program = require('commander'); 
 const fs = require('fs');
 const util = require('util');
 const tunnel = require('tunnel');
@@ -17,6 +18,8 @@ const write_promise = util.promisify(fs.writeFile);
 const readconfigModule = require('./readconfig.js');
 const getkeyModule = require('./getkey.js');
 const writecredModule = require('./writecred.js');
+
+
 
 //------ GLOBAL VARIABLES -----
 var timeouts = [];

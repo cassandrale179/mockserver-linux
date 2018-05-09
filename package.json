@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.229.1",
+    "commander": "^2.15.1",
     "inquirer": "^5.2.0",
     "moment": "^2.22.1",
     "prompt-autocompletion": "^0.1.2",
@@ -17,8 +18,8 @@
     "tunnel": "0.0.5"
   },
   "bin": {
-      "win": "./execute.bat",
-      "linux": "./execute.sh",
-      "mock": "mockserver-aws" 
+    "win": "./execute.bat",
+    "linux": "./execute.sh",
+    "mock": "mockserver-aws"
   }
 }
