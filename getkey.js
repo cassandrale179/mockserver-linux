@@ -1,3 +1,5 @@
+//------- LIBRARY TO INSTALL --------
+const program = require('commander');
 const fs = require('fs');
 const util = require('util');
 const os = require('os');
@@ -7,8 +9,15 @@ const AWS = require('aws-sdk');
 const tunnel = require('tunnel');
 const url = 'http://169.254.169.254/latest/meta-data/iam/security-credentials/';
 const http = require('http');
-
 process.on('unhandledRejection', (reason, p) => {console.log(p);});
+
+//----- OPTIONS PARSING -------
+program
+    .version('0.1.0')
+    .option('-v, --verbose', 'Verbose')
+    .option('-s, --silent', 'Silent')
+    .parse(process.argv);
+
 
 //--------------- FIX AWS PATH -------------
 var AWSPath = "";
@@ -34,23 +43,31 @@ function ec2instance(p){
                     if (!error && response2.statusCode == 200){
                         var data = JSON.parse(body2);
                         if (data.AccessKeyId && data.SecretAccessKey){
-                            console.log("Successfully get JSON data");
-			    data.target = p.target; 
+			                data.target = p.target;
                             resolve(data);
                         }
                         else{
-                            reject("[Error: ] JSON doesn't contain valid key" + data);
+                            if (program.verbose)
+                                console.error('[Error: ] JSON does not contain valid key' + data);
+                            reject(data);
                             return;
                         }
                     }
+
+                    //---------- UNABLE TO GET WITH GIVEN ROLE --------
                     else{
-                        reject("[Error: ] Unable to get data with this role " + role);
+                        if (program.verbose)
+                            console.error('[Error: ] Unable to get data with this role' + role);
+                        reject(role);
                         return;
                     }
                 });
             }
             else{
-                reject("[Error: ] Unable to get data" + body, response);
+                if (program.verbose){
+                    console.error('[Error: ] Unable to make a GET request to 169.254.169.254. The error  code is ' + resposne.statusCode.toString() + 'and the response is ' + response);
+                }
+                reject(response);
                 return;
             }
         });
@@ -72,10 +89,15 @@ function checkFileRole(p, json){
             RoleSessionName: p.role_session_name
         };
 
-        //---------- CHECK IF ACCESS KEY AND SECRET KEY EXIST ------------
+        //---------- IF ACCESS KEY AND SECRET KEY DO NOT EXIST ------------
 		if (acceskskey == undefined || secretkey == undefined){
-		    reject("ACCESS KEY IS UNDEFINED FOR THIS JSON" + JSON.stringify(json));
+            if (program.verbose){
+                console.error("[Error: ] Access key or secret key are undefined for this json " + JSON.stringify(json));
+            }
+		    reject(json);
 		}
+
+        //---------- CHECK IF ACCESS KEY AND SECRET KEY EXIST ------------
         else if (accesskey && secretkey){
             var creds = {accessKeyId: accesskey, secretAccessKey: secretkey};
             if (token) creds.sessionToken= token;
@@ -83,15 +105,17 @@ function checkFileRole(p, json){
 
             //----------- GET DATA FROM STS --------
             sts.assumeRole(params, function(err, data) {
-                if (err) console.log("[Error: ] User cannot assume this role", err);
+                if (err) console.error("[Error: ] User cannot assume this role", err);
                 else {
                     if (data.Credentials){
                         data.Credentials.target = p.target;
-                        console.log("Data credentials", data.Credentials);
                         resolve(data.Credentials);
                     }
                     else{
-                        reject("Unable to Assume Role ", params);
+                        if (program.verbose){
+                            console.error('[Error: ] Unable to assume role for this Role ARN ' + RoleArn);
+                        }
+                        reject(params);
                     }
                 }
             });
@@ -116,17 +140,20 @@ function getJSON(args){
                 if (result){
                     if (typeof result == 'string') result = JSON.parse(result);
                     result.target = p2.target;
-		            console.log("Result of credential process", result);
                     resolve(result);
 		            return;
                 }
                 else{
-                    reject("Execute failed to return JSON ", p2.credential_process, result);
+                    if (program.verbose){
+                        console.error("[Error: ] Execute failed to return JSON for this target" + p2);
+                    }
+                    reject(result);
 		            return;
                 }
             };
         };
 
+            //------- EXTRACT THE TCWS URL FROM THE CREDENTIAL PROCESS -------
             var ind = p.credential_process.indexOf("tcws_url=");
             var url = p.credential_process.substring(ind+9, p.credential_process.length);
             var command = "node " + AWSPath + url;
@@ -136,7 +163,7 @@ function getJSON(args){
         //------- IF IT'S A CREDENTIAL SOURCE -------
         else if (p.hasOwnProperty("credential_source")){
             if (p.credential_source == 'Ec2InstanceMetadata')
-                resolve(ec2instance(p));  
+                resolve(ec2instance(p));
         }
 
         //-------- IF IT'S A SOURCE PROFILE --------
@@ -149,45 +176,49 @@ function getJSON(args){
         }
 
         else{
-	    // this shouldn't happen here.... Catch it at parsing, not in processor.
-	    reject("credential_source, source_profile or credential_process not found for "+p);
-	    return;
+            if (program.verbose)
+                console.error('[Error: ] credential_source, source_profile or credential_process not found for ' + p);
+            reject(p);
+            return;
         }
     });
 
 
     //------------ IF IT HAS AN ASSUME ROLE, CALLED CHECK FILE ROLE ---------
     promise.then(json => {
-    	console.log("promise then clause run!!!!!!"); 
         return new Promise(function(resolve2, reject2){
-        if (!json){
-    	    reject2("JSON IS UNDEFINED");
-    	    return;
-        }
+            if (!json){
+                console.error("[Error: ] Return value is undefined. Unable to get any secret key, access key or token with credential process or source profile ");
+        	    reject2(json);
+        	    return;
+            }
 
-	console.log("JSON value", json); 
+        	//----------- CONVERT JSON IN CASE IT'S NOT AN OBJECT ---------
+        	if (typeof json == 'string'){
+            	try{json =  JSON.parse(json);}
+            	catch(err){reject2 (err)}
+            }
 
-    	//----------- CONVERT JSON IN CASE IT'S NOT AN OBJECT ---------
-    	if (typeof json == 'string'){
-        	try{json =  JSON.parse(json);}
-        	catch(err){reject2 (err)}
-        }
-
-    	//------------- IF USER IS UNAUTHORIZED TO GET DATA ----------
-    	if (json.hasOwnProperty('SecretAccessKey')== false){
-    	    reject2("NO KEY RECEIVED, json is " + JSON.stringify(json));
-    	    return;
-    	}
+        	//------------- IF USER IS UNAUTHORIZED TO GET DATA ----------
+        	if (json.hasOwnProperty('SecretAccessKey')== false){
+                if (program.verbose){
+                    console.error('[Error: ] No key received for this json ' + JSON.stringify(json));
+                }
+        	    reject2(json);
+        	    return;
+        	}
 
     	//------------- IF THERE ARE ASSUME ROLE ------------
-        if (args[0].assume_role_arn && json){
-            console.log("ASSUME ROLE AND JSON ARE VALID TO MAKE CALL", json);
-            return checkFileRole(args[0], json);
-        }
-        else return (json);
+            if (args[0].assume_role_arn && json){
+                return checkFileRole(args[0], json);
+            }
+            else return (json);
     	});
     }).catch(err => {
-    	console.log("Error", err);
+        if (program.verbose){
+            console.error("Error", err);
+        }
+        reject(err);
     });
     return promise;
 }

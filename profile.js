@@ -1,4 +1,5 @@
 //------- LIBRARY TO INSTALL --------
+const program = require('commander');
 const fs = require('fs');
 const os = require('os');
 const util = require('util');
@@ -8,11 +9,18 @@ const config = os.homedir() + "//.aws/config";
 const exec = require('child_process').exec;
 const write_promise = util.promisify(fs.writeFile);
 
-
 //--------- LIST OF GLOBAL VARIABLES ------
 var data = [];
 var options = [];
 var p  = "";
+
+//----- OPTIONS PARSING -------
+program
+    .version('0.1.0')
+    .option('-v, --verbose', 'Verbose')
+    .option('-s, --silent', 'Silent')
+    .parse(process.argv);
+
 
 //--------- CAPTURE ARGUMENT ON CLI -------
 if (process.argv.length >= 2){
@@ -22,7 +30,11 @@ if (process.argv.length >= 2){
 //--------- PARSING THE CONFIG AND CREDENTIAL FILE --------
 readconfigModule.read_config().then(datacsv => {
     datacsv.forEach(profile => {
-        if (profile.source) profile.source = profile.source.substring(0, profile.source.length-1);
+        if (profile.source){
+            var bracket = profile.source.lastIndexOf(']');
+            if (bracket != -1)
+                profile.source = profile.source.substring(0, bracket);
+        }
         if (profile.source) data.push(profile.source);
         if (profile.target){
             var targetArray = profile.target.split(",");
@@ -33,8 +45,8 @@ readconfigModule.read_config().then(datacsv => {
         }
     });
 
-    //----------- FILTER ARRAY ----------
-    if (p){
+    //----------- FILTER ARRAY -----------------
+    if (p && p != '--verbose' && p != '-v' && p != '--silent' && p != '-s'){
         result = data.filter(word => word.toLowerCase().indexOf(p) != -1);
         data = result;
     }
@@ -48,33 +60,37 @@ readconfigModule.read_config().then(datacsv => {
     });
 
 
-
-
+    //--------- WRITE TO PATH ----------
     autocomplete.run().then(function(answer) {
         var command = "";
         var path = "";
 
+        //-------- IF IT'S WINDOW -----------
         if (os.platform == 'win32'){
-          command = 'set AWS_PROFILE=' + answer;
-	  path = os.homedir() +  '\\AppData\\Roaming\\npm\\node_modules\\setprofile\\win.bat';
-          write_promise(path, command, 'utf8').then(success =>{
-              console.log("Successfully set profile");
-          }).catch(err => {
-			console.err("Error", err);
-		  });
+            command = 'set AWS_PROFILE=' + answer;
+            path = os.homedir() +  '\\AppData\\Roaming\\npm\\node_modules\\setprofile\\win.bat';
+            write_promise(path, command, 'utf8').then(success =>{
+                console.log("Successfully write new profile " + answer);
+            }).catch(err => {
+                console.error('[Error:] Unable to write set this profile ' + answer);
+                if (program.verbose)
+                    console.error('[Error:] Unable to set this profile ' + answer, err);
+            });
         }
+
+        //--------- IF IT'S LINUX -----------
         else{
             command = 'export AWS_PROFILE=' + answer;
             path = "/usr/lib/node_modules/setprofile/tst";
             write_promise(path, command, 'utf8').then(success => {
-                console.log("Successful write to tst");
+                console.log("Successfully write new profile " + answer);
             }).catch(err => {
-                console.err("Error", err);
+                console.error('[Error:] Unable to write set this profile ' + answer);
+                if (program.verbose)
+                    console.error(err);
             });
         }
     });
-
-
 
     //----------- FUNCTION TO FILTER AND FIND PROFILE ----------
     function searchProfiles(answers, input) {
@@ -88,5 +104,7 @@ readconfigModule.read_config().then(datacsv => {
         };
     }
 }).catch(err => {
-    console.log('[Error: ] Unable to read config file');
+    console.error('[Error: ] Unable to read config file');
+    if (program.verbose)
+        console.error(err);
 });

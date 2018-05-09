@@ -1,8 +1,8 @@
-//----=-- EXPORT FUNCTION -------
+//------ EXPORT FUNCTION -------
 module.exports = mock;
 
 //------- LIBRARY TO INSTALL --------
-const program = require('commander'); 
+const program = require('commander');
 const fs = require('fs');
 const util = require('util');
 const tunnel = require('tunnel');
@@ -19,6 +19,12 @@ const readconfigModule = require('./readconfig.js');
 const getkeyModule = require('./getkey.js');
 const writecredModule = require('./writecred.js');
 
+//----- OPTIONS PARSING -------
+program
+    .version('0.1.0')
+    .option('-v, --verbose', 'Verbose')
+    .option('-s, --silent', 'Silent')
+    .parse(process.argv);
 
 
 //------ GLOBAL VARIABLES -----
@@ -27,7 +33,7 @@ var timeouts = [];
 //------ CHECK FOR UNHANDLED REJECTION PROMISE --------
 process.on("unhandledRejection", (reason,p) => { console.log(p);});
 
-
+//------ MOCK FUNCTION BEGIN HERE --------
 function mock(){
 
     //------- BUILD A TUNNEL FOR THE PORT --------------
@@ -42,7 +48,10 @@ function mock(){
         AWS.config.httpOptions = { agent: tunnelingAgent };
         callConfig();
     }
-    else console.log("[Error: ] The proxy is not defined. For Windows machine, please set HTTP_PROXY to BMS server. If you are running this on Unix machine, please set http_proxy to BMS server");
+    else{
+        if (program.verbose)
+        console.log("[Error: ] The proxy is not defined. For Windows machine, please set HTTP_PROXY to BMS server. If you are running this on Unix machine, please set http_proxy to BMS server");
+    }
 
 
 
@@ -55,6 +64,8 @@ function mock(){
     //------- GET PROFILE FROM CONFIG FILE -----
     function callConfig(){
         readconfigModule.read_config().then(datacsv => {
+            if (datacsv.length <= 0)
+                console.log('[Warning:] Your config file is empty');
 
 
             //-------- WHEN CONFIG IS MODIFIED, MODIFY TIMEOUT -----
@@ -81,7 +92,8 @@ function mock(){
                 }
             });
         }).catch(err => {
-            console.log(err);
+            if (program.verbose)
+                console.log('[Error: ] Unable to read your configuration file. Either the file does not exist or it is empty');
             reject(err);
         });
     }
@@ -107,7 +119,6 @@ function mock(){
             var exp = retVal.Expiration;
 
             console.log("Return value", retVal);
-            console.log("Value of access and secret and target", access, secret, target);
 
 
             if (access && secret){
@@ -144,10 +155,12 @@ function mock(){
                 console.log("-----------------------------------------");
             }
     	else{
-    	    console.log("no access key and secret key", retVal);
+    	    console.log("Return value has no access key and secret key", retVal);
     	}
         }).catch((err) => {
-            console.error(err);
+            if (program.verbose){
+                console.log('[Error: ] Unable to get any value - access key, sercet key or session token from the given credential process or source profile');
+            }
             reject(err);
         });
     }

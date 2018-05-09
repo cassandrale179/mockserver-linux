@@ -1,3 +1,4 @@
+const program = require('commander');
 const fs = require('fs');
 const util = require('util');
 const read_promise = util.promisify(fs.readFile);
@@ -6,12 +7,21 @@ const os = require('os');
 const config = os.homedir() + "//.aws/config";
 
 
+//----- OPTIONS PARSING -------
+program
+    .version('0.1.0')
+    .option('-v, --verbose', 'Verbose')
+    .option('-s, --silent', 'Silent')
+    .parse(process.argv);
+
+
 //------ HELPER EXTRACT FUNCTION ------
 function ext(str, type, i){
     if (type == 'f') return str.substring(0, str.indexOf('=')).trim();
     if (type == 'p') return str.substring(i, str.length-1).trim();
     else return str.substring(str.indexOf('=')+1, str.length).trim();
 }
+
 
 //-------- READ PROMISE -------
 function read_config(){
@@ -47,7 +57,7 @@ function read_config(){
                         //------- CHECK DUPLCIATE -----
                         mock_arr.forEach(x => {
                             if (duplicate.indexOf(x) != -1)
-                                console.log("[Error:] Duplicate at credential ", x);
+                                console.error("[Error:] Duplicate at credential ", x);
                             else duplicate.push(x);
                         });
                     }
@@ -132,7 +142,8 @@ function read_config(){
                   }
                   else{
                     chain = true;
-                    console.error('[Error: ] Source profile linked back to each other');
+                    if (program.verbose)
+                        console.error('[Error: ] Source profile linked back to each other');
                     break;
                   }
               }
@@ -142,10 +153,14 @@ function read_config(){
 
         //-------- IF EVERYTHING IS GOOD, RESOLVE RESULT -----
         if (chain == false){
-            console.log('No chain detetced');
+            console.log('[Success: ] Configuration file has no duplicate source profile');
             resolve(result);
         }
-        }).catch(err => console.log('Error: No config file'));
+        }).catch(err => {
+            if (program.verbose)
+            console.error('Error: No config file');
+            reject(err);
+        });
     });
 }
 exports.read_config = read_config;
