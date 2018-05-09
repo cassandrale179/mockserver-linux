@@ -56,7 +56,7 @@ readconfigModule.read_config().then(datacsv => {
 
         if (os.platform == 'win32'){
           command = 'set AWS_PROFILE=' + answer;
-		  path = os.homedir() +  '\\AppData\\Roaming\\npm\\node_modules\\setprofile\\win.bat';
+	  path = os.homedir() +  '\\AppData\\Roaming\\npm\\node_modules\\setprofile\\win.bat';
           write_promise(path, command, 'utf8').then(success =>{
               console.log("Successfully set profile");
           }).catch(err => {
