@@ -16,5 +16,9 @@
     "request": "^2.85.0",
     "tunnel": "0.0.5"
   },
-  "bin": "mockserver-aws"
+  "bin": {
+      "win": "./execute.bat",
+      "linux": "./execute.sh",
+      "mock": "mockserver-aws" 
+  }
 }
