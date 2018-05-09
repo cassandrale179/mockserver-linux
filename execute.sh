@@ -1,2 +1,2 @@
-node profile.js $1 
-. tst 
+node "usr/lib/node_modules/setprofile/profile.js" 
+. "usr/lib/node_modules/setprofile/tst"
