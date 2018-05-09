@@ -33,13 +33,13 @@ To run the program simply located the folder and type:
 
 If you want to browse a list of profile, and set a default AWS_PROFILE.
 
-On Windows, run execute.bat
+On Windows, run 
 ```
-execute
+win.cmd 
 ```
-On Linux, run execute.sh
+On Linux, run
 ```
-$ . execute.sh
+$ . linux 
 ```
 
 Also, if you want to run the mockserver globally, do:
@@ -47,7 +47,10 @@ Also, if you want to run the mockserver globally, do:
 npm install -g file:mockserver.tar
 ```
 
-Then simply type mockserver to run the program
+Then simply type this to run the program:
+```
+mock
+``` 
 
 
 ## Folder structure:
@@ -60,7 +63,7 @@ Then simply type mockserver to run the program
     ├── execute.bat               # Initial file for Windows to call profile.js
     ├── execute.sh                # Initial file for Linux to call profile.js  
     ├── win.bat                   # Bat file to set environment variable for Windows
-    ├── tst                       # Shell file to set environment variable for Linux                                                         
+    ├── tst                       # Shell file to set environment variable for Linux                                                         ├── mockserver-aws            # Shell file to call the mock.js                                               
     ├── package.json                   
     ├── LICENSE
     └── README.md
