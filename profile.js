@@ -1,13 +1,13 @@
 //------- LIBRARY TO INSTALL --------
 const fs = require('fs');
 const os = require('os');
-const inquirer = require('inquirer');
 const util = require('util');
 const AutoComplete = require('prompt-autocompletion');
 const readconfigModule = require('./readconfig.js');
 const config = os.homedir() + "//.aws/config";
 const exec = require('child_process').exec;
 const write_promise = util.promisify(fs.writeFile);
+
 
 //--------- LIST OF GLOBAL VARIABLES ------
 var data = [];
@@ -22,7 +22,7 @@ if (process.argv.length >= 2){
 //--------- PARSING THE CONFIG AND CREDENTIAL FILE --------
 readconfigModule.read_config().then(datacsv => {
     datacsv.forEach(profile => {
-        if (profile.source) profile.source = profile.source.substring(0, profile.source.length -1);
+        if (profile.source) profile.source = profile.source.substring(0, profile.source.length-1);
         if (profile.source) data.push(profile.source);
         if (profile.target){
             var targetArray = profile.target.split(",");
@@ -49,18 +49,28 @@ readconfigModule.read_config().then(datacsv => {
 
 
 
+
     autocomplete.run().then(function(answer) {
+        var command = "";
+        var path = "";
+
         if (os.platform == 'win32'){
-          var command = 'set AWS_PROFILE=' + answer;
-          write_promise('win.bat', command, 'utf8').then(success =>{
+          command = 'set AWS_PROFILE=' + answer;
+		  path = os.homedir() +  '\\AppData\\Roaming\\npm\\node_modules\\setprofile\\win.bat';
+          write_promise(path, command, 'utf8').then(success =>{
               console.log("Successfully set profile");
-          });
+          }).catch(err => {
+			console.err("Error", err);
+		  });
         }
         else{
-        var command = 'export AWS_PROFILE=' + answer;
-      write_promise('tst', command, 'utf8').then(success => {
-        console.log("Successful write to tst");
-      });
+            command = 'export AWS_PROFILE=' + answer;
+            path = "/usr/lib/node_modules/setprofile/tst";
+            write_promise(path, command, 'utf8').then(success => {
+                console.log("Successful write to tst");
+            }).catch(err => {
+                console.err("Error", err);
+            });
         }
     });
 
