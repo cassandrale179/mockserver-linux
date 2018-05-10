@@ -5,7 +5,7 @@ const read_promise = util.promisify(fs.readFile);
 const moment = require('moment');
 const os = require('os');
 const config = os.homedir() + "//.aws/config";
-
+const snsqueueModule = require('./snsqueue.js');
 
 //----- OPTIONS PARSING -------
 program
@@ -56,8 +56,9 @@ function read_config(){
 
                         //------- CHECK DUPLCIATE -----
                         mock_arr.forEach(x => {
-                            if (duplicate.indexOf(x) != -1)
-                                console.error("[Error:] Duplicate at credential ", x);
+                            if (duplicate.indexOf(x) != -1){
+                                console.error("[Error:] You already have a mock credential name ", x);
+                            }
                             else duplicate.push(x);
                         });
                     }
@@ -143,7 +144,8 @@ function read_config(){
                   else{
                     chain = true;
                     if (program.verbose)
-                        console.error('[Error: ] Source profile linked back to each other');
+                        console.error('[Error: ] One of your source profile eventually linked back to itself ' + par);
+                    snsqueueModule.getHostName('[Error: ] This source profile eventually linked back to itself ' + par);
                     break;
                   }
               }
@@ -157,9 +159,9 @@ function read_config(){
             resolve(result);
         }
         }).catch(err => {
-            if (program.verbose)
-            console.error('Error: No config file');
-            reject(err);
+            if (program.verbose) console.error(err);
+            console.error('[Error: ] No config file found at .aws folder');
+            snsqueueModule.getHostName('[Error: ] No config file found at .aws folder');
         });
     });
 }
