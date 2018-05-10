@@ -23,6 +23,6 @@
     "winprofile": "./execute.bat",
     "linprofile": "./execute.sh",
     "bmsmock": "mockserver-aws", 
-	  "bmsjwt":"./tempcred.js"
+    "bmsjwt":"./tempcred.js"
   }
 }
