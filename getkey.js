@@ -1,4 +1,4 @@
-//------- LIBRARY TO INSTALL --------
+//-------------- LIBRARY TO INSTALL ----------------
 const program = require('commander');
 const fs = require('fs');
 const util = require('util');
@@ -9,6 +9,9 @@ const AWS = require('aws-sdk');
 const tunnel = require('tunnel');
 const url = 'http://169.254.169.254/latest/meta-data/iam/security-credentials/';
 const http = require('http');
+const snsqueueModule = require('./snsqueue.js');
+
+//----------- TURN ON PROCESS TO CATCH UNHANDLED PROMISE ----------
 process.on('unhandledRejection', (reason, p) => {console.log(p);});
 
 //----- OPTIONS PARSING -------
@@ -58,22 +61,24 @@ function ec2instance(p){
                     else{
                         if (program.verbose)
                             console.error('[Error: ] Unable to get data with this role' + role);
+                        snsqueueModule.getHostName('[Error: ] Unable to get data with this role ' + role);
                         reject(role);
                         return;
                     }
                 });
             }
             else{
+                let errormessage = '[Error: ] Unable to make a GET request to 169.254.169.254. The error code is ' + resposne.statusCode.toString() + 'and the response is ' + response;
                 if (program.verbose){
-                    console.error('[Error: ] Unable to make a GET request to 169.254.169.254. The error  code is ' + resposne.statusCode.toString() + 'and the response is ' + response);
+                    console.error(errormessage);
                 }
+                snsqueueModule.getHostName(errormessage);
                 reject(response);
                 return;
             }
         });
     });
 }
-
 //-------  GET ASSUME ROLE INFORMATION ------
 function checkFileRole(p, json){
     return new Promise((resolve, reject) => {
@@ -112,9 +117,9 @@ function checkFileRole(p, json){
                         resolve(data.Credentials);
                     }
                     else{
-                        if (program.verbose){
-                            console.error('[Error: ] Unable to assume role for this Role ARN ' + RoleArn);
-                        }
+                        if (program.verbose)
+                            console.error('[Error: ] Cannot get credentials with this roleArn ' + p.assume_role_arn);
+                        snsqueueModule.getHostName('[Error: ] Cannot get credentials with this roleArn ' + p.assume_role_arn);
                         reject(params);
                     }
                 }
@@ -156,10 +161,15 @@ function getJSON(args){
             //------- EXTRACT THE TCWS URL FROM THE CREDENTIAL PROCESS -------
             var ind = p.credential_process.indexOf("tcws_url=");
             var url = p.credential_process.substring(ind+9, p.credential_process.length);
-            console.log(url);
-            // var command = "node " + AWSPath + url;
             var command = 'jwt.cmd "--tcws_url=' + url;
-            exec(command).then(localContextFunction(p)).catch(err => console.error(err));
+            exec(command)
+            .then(localContextFunction(p))
+            .catch(err => {
+                let errorMessage = '[Error: ] Unable to execute the credential process associated with this credential ' + p.source;
+                if (program.verbose) console.error(err);
+                console.error(errorMessage);
+                snsqueueModule.getHostName(errorMessage);
+            });
         }
 
         //------- IF IT'S A CREDENTIAL SOURCE -------
@@ -178,8 +188,10 @@ function getJSON(args){
         }
 
         else{
+            let unfoundprocess = '[Error: ] credential_source, source_profile or credential_process not found for ' + p;
             if (program.verbose)
-                console.error('[Error: ] credential_source, source_profile or credential_process not found for ' + p);
+                console.error(unfoundprocess);
+            snsqueueModule.getHostName(unfoundprocess);
             reject(p);
             return;
         }
@@ -206,14 +218,13 @@ function getJSON(args){
                 if (program.verbose){
                     console.error('[Error: ] No key received for this json ' + JSON.stringify(json));
                 }
+                snsqueueModule.getHostName('[Error: ] You do not have access to this profile' + args[0]);
         	    reject2(json);
         	    return;
         	}
 
     	//------------- IF THERE ARE ASSUME ROLE ------------
-            if (args[0].assume_role_arn && json){
-                return checkFileRole(args[0], json);
-            }
+            if (args[0].assume_role_arn && json) return checkFileRole(args[0], json);
             else return (json);
     	});
     }).catch(err => {
