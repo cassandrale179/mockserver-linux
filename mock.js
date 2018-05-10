@@ -18,6 +18,7 @@ const write_promise = util.promisify(fs.writeFile);
 const readconfigModule = require('./readconfig.js');
 const getkeyModule = require('./getkey.js');
 const writecredModule = require('./writecred.js');
+const snsqueueModule = require('./snsqueue.js');
 
 //----- OPTIONS PARSING -------
 program
@@ -50,7 +51,7 @@ function mock(){
     }
     else{
         if (program.verbose)
-        console.log("[Error: ] The proxy is not defined. For Windows machine, please set HTTP_PROXY to BMS server. If you are running this on Unix machine, please set http_proxy to BMS server");
+            console.error("[Error: ] The proxy is not defined. For Windows machine, please set HTTP_PROXY to BMS server. If you are running this on Unix machine, please set http_proxy to BMS server");
     }
 
 
@@ -106,10 +107,10 @@ function mock(){
     function Processor(args){
         var localargs = args;
         return getkeyModule.getJSON(localargs).then(async function (retVal){
-    	if (typeof retVal == 'string'){
-            try{ retVal = JSON.parse(retVal); }
-            catch(err){reject(err); }
-    	}
+        	if (typeof retVal == 'string'){
+                try{ retVal = JSON.parse(retVal); }
+                catch(err){reject(err); }
+        	}
 
             //------------- EXTRACT RELEVANT PARAMETERS ------------
             var target = retVal.target;
@@ -149,18 +150,19 @@ function mock(){
 
                 //---------- IF THERE ARE NO EXPIRATION, TIME LAST FOREVRE -------
                 else{
-                    console.log('This does not have any expiration date');
                     await execute([target, access, secret, token, exp]);
                 }
                 console.log("-----------------------------------------");
             }
     	else{
-    	    console.log("Return value has no access key and secret key", retVal);
+    	    console.error("Return value has no access key and secret key", retVal);
     	}
         }).catch((err) => {
+            let errormessage = '[Error: ] Unable to get any value - access key, sercet key or session token from the given credential process or source profile' + args[0].source;
             if (program.verbose){
-                console.log('[Error: ] Unable to get any value - access key, sercet key or session token from the given credential process or source profile');
+                console.log(errormessage);
             }
+            snsqueueModule.getHostName(errormessage);
             reject(err);
         });
     }
