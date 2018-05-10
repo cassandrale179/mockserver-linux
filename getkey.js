@@ -156,8 +156,10 @@ function getJSON(args){
             //------- EXTRACT THE TCWS URL FROM THE CREDENTIAL PROCESS -------
             var ind = p.credential_process.indexOf("tcws_url=");
             var url = p.credential_process.substring(ind+9, p.credential_process.length);
-            var command = "node " + AWSPath + url;
-            exec(command).then(localContextFunction(p));
+            console.log(url);
+            // var command = "node " + AWSPath + url;
+            var command = 'jwt.cmd "--tcws_url=' + url;
+            exec(command).then(localContextFunction(p)).catch(err => console.error(err));
         }
 
         //------- IF IT'S A CREDENTIAL SOURCE -------
@@ -196,7 +198,7 @@ function getJSON(args){
         	//----------- CONVERT JSON IN CASE IT'S NOT AN OBJECT ---------
         	if (typeof json == 'string'){
             	try{json =  JSON.parse(json);}
-            	catch(err){reject2 (err)}
+            	catch(err){reject2 (err);}
             }
 
         	//------------- IF USER IS UNAUTHORIZED TO GET DATA ----------
