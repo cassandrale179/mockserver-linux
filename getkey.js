@@ -161,7 +161,7 @@ function getJSON(args){
             //------- EXTRACT THE TCWS URL FROM THE CREDENTIAL PROCESS -------
             var ind = p.credential_process.indexOf("tcws_url=");
             var url = p.credential_process.substring(ind+9, p.credential_process.length);
-            var command = 'jwt.cmd "--tcws_url=' + url;
+            var command = 'bmsjwt.cmd "--tcws_url=' + url;
             exec(command)
             .then(localContextFunction(p))
             .catch(err => {
