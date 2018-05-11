@@ -1,4 +1,4 @@
-{
+{"
   "name": "mockserver",
   "version": "1.0.0",
   "description": "A mockserver to refresh credentials",
@@ -9,17 +9,20 @@
   "author": "Minh le",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.229.1",
+    "aws-sdk": "^2.236.1",
+    "child_process": "^1.0.2",
     "commander": "^2.15.1",
     "inquirer": "^5.2.0",
     "moment": "^2.22.1",
     "prompt-autocompletion": "^0.1.2",
     "request": "^2.85.0",
+    "shorteners": "^1.0.0",
     "tunnel": "0.0.5"
   },
   "bin": {
-    "win": "./execute.bat",
-    "linux": "./execute.sh",
-    "mock": "mockserver-aws"
+    "winprofile": "./execute.bat",
+    "linprofile": "./execute.sh",
+    "bmsmock": "mockserver-aws", 
+    "bmsjwt":"./tempcred.js"
   }
 }
