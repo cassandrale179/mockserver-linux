@@ -218,7 +218,6 @@ function getJSON(args){
         if (program.verbose){
             console.error("Error", err);
         }
-        reject(err);
     });
     return promise;
 }
