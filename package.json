@@ -1,28 +1,19 @@
-{"
-  "name": "mockserver",
+{
+  "name": "mockserver-linux",
   "version": "1.0.0",
-  "description": "A mockserver to refresh credentials",
+  "description": "Mockserver is a Node.js program that allow user to refresh their AWS credential file based on a given configuration file on EC2 instances.",
   "main": "getkey.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Minh le",
-  "license": "ISC",
-  "dependencies": {
-    "aws-sdk": "^2.236.1",
-    "child_process": "^1.0.2",
-    "commander": "^2.15.1",
-    "inquirer": "^5.2.0",
-    "moment": "^2.22.1",
-    "prompt-autocompletion": "^0.1.2",
-    "request": "^2.85.0",
-    "shorteners": "^1.0.0",
-    "tunnel": "0.0.5"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cassandrale179/mockserver-linux.git"
   },
-  "bin": {
-    "winprofile": "./execute.bat",
-    "linprofile": "./execute.sh",
-    "bmsmock": "mockserver-aws", 
-    "bmsjwt":"./tempcred.js"
-  }
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cassandrale179/mockserver-linux/issues"
+  },
+  "homepage": "https://github.com/cassandrale179/mockserver-linux#readme"
 }
