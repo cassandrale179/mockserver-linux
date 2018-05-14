@@ -11,6 +11,11 @@ npm install moment
 npm install request
 npm install tunnel
 npm install aws-sdk
+npm install shorteners
+npm install child_process
+npm install prompt-autocompletion
+npm install commander 
+npm install -g mocha
 ```
 
 Before running the program, please set the proxy, for example, on Linux:
@@ -33,13 +38,13 @@ To run the program simply located the folder and type:
 
 If you want to browse a list of profile, and set a default AWS_PROFILE.
 
-On Windows, run 
+On Windows, run
 ```
-win.cmd 
+win.cmd
 ```
 On Linux, run
 ```
-$ . linux 
+$ . linux
 ```
 
 Also, if you want to run the mockserver globally, do:
@@ -50,7 +55,13 @@ npm install -g file:mockserver.tar
 Then simply type this to run the program:
 ```
 mock
-``` 
+```
+
+To run unit tests on the program, cd into the test folder, then run the following commands :
+```
+mocha test
+```
+
 
 
 ## Folder structure:
