@@ -1,6 +1,9 @@
 const assert = require('assert');
 const config = require('os').homedir() + "//.aws/config";
 const fs = require('fs');
+const request = require('request'); 
+const url = 'http://169.254.169.254/latest/meta-data/iam/security-credentials/'; 
+const expect = require('chai').expect; 
 
 //------------- LIST OF MODULES TO BE USED ------------
 const mockModule = require('../mock.js');
@@ -35,14 +38,25 @@ describe('Parsing configuration file', function(){
 
 describe('Call to 169.254.169.254', function(){
     it ('should return status code at 200', function(done){
-        request({'url':url,'proxy':'http://169.254.169.254/'})
-        .expect(200);
+        request({'url':url,'proxy':'http://169.254.169.254/'}, function(error, response, body){
+	    expect(response.statusCode).to.equal(200); 
+	})
         done();
     });
 });
 
 describe('Call to security credentials', function(){
     it ('should return an IAM role', function(done){
+    	request({'url': url, 'proxy': 'http://169.254.169.254/'}, function(err, res, bod){
+	    if (bod){
+	    	var role = bod; 
+		var newURL = url + role; 
+		request({'url': newURL, 'proxy': 'http://169.254.169.254/'}, function(err2, res2, bod2){
+		    expect(res2.statusCode).to.equal(200); 
+		})
+	    }
+	})
+    
         done();
     });
 });
