@@ -1,5 +1,5 @@
 {
-  "name": "mockserver-linux-master",
+  "name": "mockserver",
   "version": "1.0.0",
   "description": "Mockserver is a Node.js program that allow user to refresh their AWS credential file based on a given configuration file on EC2 instances.",
   "main": "getkey.js",
