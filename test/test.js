@@ -60,3 +60,16 @@ describe('Call to security credentials', function(){
         done();
     });
 });
+
+
+describe('Check path on Linux', function(){
+    it('should return linprofile as an executable', function(done){
+    if (process.platform == 'linux'){
+   	 var path = '/usr/bin/linprofile'; 
+    }
+    fs.stat(path, (err, stat) => {
+        assert.equal(err, null); 
+    })
+    done(); 
+    }); 
+}); 
