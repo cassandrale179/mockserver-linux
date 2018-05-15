@@ -16,6 +16,7 @@ npm install child_process
 npm install prompt-autocompletion
 npm install commander 
 npm install -g mocha
+npm install chai 
 ```
 
 Before running the program, please set the proxy, for example, on Linux:
