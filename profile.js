@@ -59,7 +59,7 @@ readconfigModule.read_config().then(datacsv => {
         //-------- IF IT'S WINDOW -----------
         if (os.platform == 'win32'){
             command = 'set AWS_PROFILE=' + answer;
-            path = os.homedir() +  '\\AppData\\Roaming\\npm\\node_modules\\setprofile\\win.bat';
+            path = os.homedir() +  '\\AppData\\Roaming\\npm\\node_modules\\mockserver\\win.bat';
             write_promise(path, command, 'utf8').then(success =>{
                 console.log("Successfully write new profile " + answer);
             }).catch(err => {
@@ -70,7 +70,7 @@ readconfigModule.read_config().then(datacsv => {
         //--------- IF IT'S LINUX -----------
         else{
             command = 'export AWS_PROFILE=' + answer;
-            path = "/usr/lib/node_modules/setprofile/tst";
+            path = "/usr/lib/node_modules/mockserver/tst";
             write_promise(path, command, 'utf8').then(success => {
                 console.log("Successfully write new profile " + answer);
             }).catch(err => {
