@@ -23,7 +23,8 @@ function getHostName(_error) {
 		}
 	  }
 	  else{
-		hostname=data;
+		hostname=body; 
+		console.log("hostname no error", hostname); 
 	  }
 	  console.log("Hostname", hostname);
 	  sendNotification(_error,hostname);
