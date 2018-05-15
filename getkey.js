@@ -95,7 +95,7 @@ function checkFileRole(p, json){
         };
 
         //---------- IF ACCESS KEY AND SECRET KEY DO NOT EXIST ------------
-		if (acceskskey == undefined || secretkey == undefined){
+		if (accesskey == undefined || secretkey == undefined){
             if (program.verbose){
                 console.error("[Error: ] Access key or secret key are undefined for this json " + JSON.stringify(json));
             }
