@@ -41,11 +41,11 @@ If you want to browse a list of profile, and set a default AWS_PROFILE.
 
 On Windows, run
 ```
-win.cmd
+winprofile.cmd
 ```
 On Linux, run
 ```
-$ . linux
+$ . linprofile
 ```
 
 Also, if you want to run the mockserver globally, do:
@@ -55,7 +55,7 @@ npm install -g file:mockserver.tar
 
 Then simply type this to run the program:
 ```
-mock
+bmsmock
 ```
 
 To run unit tests on the program, cd into the test folder, then run the following commands :
