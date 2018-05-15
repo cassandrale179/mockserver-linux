@@ -22,6 +22,12 @@
   "scripts": {
     "test": "mocha"
   },
+   "bin": {
+    "winprofile": "./execute.bat",
+    "linprofile": "./execute.sh",
+    "bmsmock": "mockserver-aws", 
+    "bmsjwt":"./tempcred.js"
+  },
   "author": "",
   "license": "ISC"
 }
