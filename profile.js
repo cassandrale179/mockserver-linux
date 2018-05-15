@@ -1,5 +1,4 @@
 //------- LIBRARY TO INSTALL --------
-const program = require('commander');
 const fs = require('fs');
 const os = require('os');
 const util = require('util');
@@ -13,14 +12,6 @@ const write_promise = util.promisify(fs.writeFile);
 var data = [];
 var options = [];
 var p  = "";
-
-//----- OPTIONS PARSING -------
-program
-    .version('0.1.0')
-    .option('-v, --verbose', 'Verbose')
-    .option('-s, --silent', 'Silent')
-    .parse(process.argv);
-
 
 //--------- CAPTURE ARGUMENT ON CLI -------
 if (process.argv.length >= 2){
@@ -46,7 +37,7 @@ readconfigModule.read_config().then(datacsv => {
     });
 
     //----------- FILTER ARRAY -----------------
-    if (p && p != '--verbose' && p != '-v' && p != '--silent' && p != '-s'){
+    if (p){
         result = data.filter(word => word.toLowerCase().indexOf(p) != -1);
         data = result;
     }
@@ -73,8 +64,6 @@ readconfigModule.read_config().then(datacsv => {
                 console.log("Successfully write new profile " + answer);
             }).catch(err => {
                 console.error('[Error:] Unable to write set this profile ' + answer);
-                if (program.verbose)
-                    console.error('[Error:] Unable to set this profile ' + answer, err);
             });
         }
 
@@ -86,8 +75,6 @@ readconfigModule.read_config().then(datacsv => {
                 console.log("Successfully write new profile " + answer);
             }).catch(err => {
                 console.error('[Error:] Unable to write set this profile ' + answer);
-                if (program.verbose)
-                    console.error(err);
             });
         }
     });
@@ -105,6 +92,4 @@ readconfigModule.read_config().then(datacsv => {
     }
 }).catch(err => {
     console.error('[Error: ] Unable to read config file');
-    if (program.verbose)
-        console.error(err);
 });
