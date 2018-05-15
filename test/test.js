@@ -1,9 +1,10 @@
 const assert = require('assert');
 const config = require('os').homedir() + "//.aws/config";
 const fs = require('fs');
-const request = require('request'); 
-const url = 'http://169.254.169.254/latest/meta-data/iam/security-credentials/'; 
-const expect = require('chai').expect; 
+const request = require('request');
+const url = 'http://169.254.169.254/latest/meta-data/iam/security-credentials/';
+const expect = require('chai').expect;
+const os = require('os');
 
 //------------- LIST OF MODULES TO BE USED ------------
 const mockModule = require('../mock.js');
@@ -39,8 +40,8 @@ describe('Parsing configuration file', function(){
 describe('Call to 169.254.169.254', function(){
     it ('should return status code at 200', function(done){
         request({'url':url,'proxy':'http://169.254.169.254/'}, function(error, response, body){
-	    expect(response.statusCode).to.equal(200); 
-	})
+	    expect(response.statusCode).to.equal(200);
+	});
         done();
     });
 });
@@ -49,27 +50,66 @@ describe('Call to security credentials', function(){
     it ('should return an IAM role', function(done){
     	request({'url': url, 'proxy': 'http://169.254.169.254/'}, function(err, res, bod){
 	    if (bod){
-	    	var role = bod; 
-		var newURL = url + role; 
-		request({'url': newURL, 'proxy': 'http://169.254.169.254/'}, function(err2, res2, bod2){
-		    expect(res2.statusCode).to.equal(200); 
-		})
+	    	var role = bod;
+    		var newURL = url + role;
+    		request({'url': newURL, 'proxy': 'http://169.254.169.254/'}, function(err2, res2, bod2){
+    		    expect(res2.statusCode).to.equal(200);
+    		});
 	    }
-	})
-    
+	   });
         done();
     });
 });
 
 
-describe('Check path on Linux', function(){
-    it('should return linprofile as an executable', function(done){
-    if (process.platform == 'linux'){
-   	 var path = '/usr/bin/linprofile'; 
-    }
-    fs.stat(path, (err, stat) => {
-        assert.equal(err, null); 
-    })
-    done(); 
-    }); 
-}); 
+describe('Check bmsmock', function(){
+    var path = "";
+    it ('should return bmsmock as an executable', function(done){
+        if (process.platform == 'linux'){
+            path = '/usr/bin/bmsmock';
+        }
+        else{
+            path = os.homedir() + '/AppData/Roaming/npm/bmsmock';
+        }
+        fs.stat(path, (err, stat) => {
+            console.log(err);
+            assert.equal(err, null);
+        });
+        done();
+    });
+});
+
+
+describe('Check bmsjwt', function(){
+    var path = "";
+    it ('should return bmsjwt as an executable', function(done){
+        if (process.platform == 'linux'){
+            path = '/usr/bin/bmsjwt';
+        }
+        else{
+            path = os.homedir() + '/AppData/Roaming/npm/bmsjwt';
+        }
+        fs.stat(path, (err, stat) => {
+            console.log(err);
+            assert.equal(err, null);
+        });
+        done();
+    });
+});
+
+
+describe('Check executable path on Linux and Windows', function(){
+    var path = "";
+    it('should return linprofile or winprofile as an executable', function(done){
+        if (process.platform == 'linux'){
+       	 path = '/usr/bin/linprofile';
+        }
+        else{
+         path = os.homedir() + '/AppData/Roaming/npm/winprofile';
+        }
+        fs.stat(path, (err, stat) => {
+            assert.equal(err, null);
+        });
+        done();
+    });
+});
