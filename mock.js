@@ -127,12 +127,9 @@ function mock(){
                 //-------------- IF EXPIRATION EXIST, THEN CALCULTE WHEN IT EXPIRES ---------
                 if (exp){
                     var now = moment();
-                    var expiration = moment(retVal.Expiration);
-                    var timetoRun = expiration.subtract(2, 'minutes');
-                    var delayMoment = moment.duration(timetoRun.diff(now));
-                    var delay = parseFloat(delayMoment.asSeconds())*1000;
+                    var expiration = moment(retVal.Expiration); 
 
-                    console.log("Time this will run", timetoRun.format('LLLL'));
+                    console.log("Time this will run", now.add(5, 'minutes').format('LLLL'));
 
                     //------------- IF TIME ALREADY EXPIRED, HANDLE ERROR -------
                     if (delay < 0){
@@ -144,7 +141,7 @@ function mock(){
                     await execute([target, access, secret, token, exp]);
                     timeouts.push({
                         target: target,
-                        timeout: setTimeout(Processor, delay, localargs)
+                        timeout: setTimeout(Processor, 300000, localargs)
                     });
                 }
 
@@ -163,7 +160,6 @@ function mock(){
                 console.log(errormessage);
             }
             snsqueueModule.getHostName(errormessage);
-            reject(err);
         });
     }
 }
