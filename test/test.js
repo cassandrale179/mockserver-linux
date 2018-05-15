@@ -65,7 +65,7 @@ describe('Mockserver', function(){
     it ('should be located in user global node modules', function(done){
         var path = "";
         if (process.platform == 'linux'){
-            path = '/usr/lib/node_modules/mockservre';
+            path = '/usr/lib/node_modules/mockserver';
         }
         else{
             path = os.homedir() + '/AppData/Roaming/npm/node_modules/mockserver';
