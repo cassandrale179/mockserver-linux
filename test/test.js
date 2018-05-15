@@ -35,6 +35,8 @@ describe('Parsing configuration file', function(){
 
 describe('Call to 169.254.169.254', function(){
     it ('should return status code at 200', function(done){
+        request({'url':url,'proxy':'http://169.254.169.254/'})
+        .expect(200);
         done();
     });
 });
