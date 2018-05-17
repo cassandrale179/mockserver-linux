@@ -128,16 +128,6 @@ function mock(){
                 if (exp){
                     var now = moment();
                     var expiration = moment(retVal.Expiration); 
-
-                    console.log("Time this will run", now.add(5, 'minutes').format('LLLL'));
-
-                    //------------- IF TIME ALREADY EXPIRED, HANDLE ERROR -------
-                    if (delay < 0){
-                        delay = 1000;
-                        console.log("[Warning: ] This has already expired");
-                        console.log("Expiration date: ", expiration.format('LLLL'));
-                        console.log("Current time ", now.format('LLLL'));
-                    }
                     await execute([target, access, secret, token, exp]);
                     timeouts.push({
                         target: target,
@@ -149,6 +139,8 @@ function mock(){
                 else{
                     await execute([target, access, secret, token, exp]);
                 }
+                
+                console.log("Time this will run", now.add(5, 'minutes').format('LLLL'));
                 console.log("-----------------------------------------");
             }
     	else{
@@ -156,9 +148,8 @@ function mock(){
     	}
         }).catch((err) => {
             let errormessage = '[Error: ] Unable to get any value - access key, sercet key or session token from the given credential process or source profile' + args[0].source;
-            if (program.verbose){
-                console.log(errormessage);
-            }
+            if (program.verbose) console.log(errormessage);
+            console.log(err); 
             snsqueueModule.getHostName(errormessage);
         });
     }
