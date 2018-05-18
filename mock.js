@@ -55,7 +55,6 @@ function mock(){
     }
 
 
-
     //------- HAVE A WATCH FUNCTION THAT MONITOR CHANGE ----
     fs.watchFile(config, (curr, prev) => {
       if (prev.mtime) callConfig();
@@ -92,6 +91,11 @@ function mock(){
                     }
                 }
             });
+
+            //--------- IF USER TIMEOUT DOES NOT HAVE ANYTHING --------
+            if (timeouts.length == 0)
+                console.log("[Warning: ] No mock credentials to run. You can specify some in configuration file");
+
         }).catch(err => {
             if (program.verbose)
                 console.log('[Error: ] Unable to read your configuration file. Either the file does not exist or it is empty');
@@ -127,7 +131,7 @@ function mock(){
                 //-------------- IF EXPIRATION EXIST, THEN CALCULTE WHEN IT EXPIRES ---------
                 if (exp){
                     var now = moment();
-                    var expiration = moment(retVal.Expiration); 
+                    var expiration = moment(retVal.Expiration);
                     await execute([target, access, secret, token, exp]);
                     timeouts.push({
                         target: target,
@@ -139,7 +143,7 @@ function mock(){
                 else{
                     await execute([target, access, secret, token, exp]);
                 }
-                
+
                 console.log("Time this will run", now.add(5, 'minutes').format('LLLL'));
                 console.log("-----------------------------------------");
             }
@@ -149,7 +153,7 @@ function mock(){
         }).catch((err) => {
             let errormessage = '[Error: ] Unable to get any value - access key, sercet key or session token from the given credential process or source profile' + args[0].source;
             if (program.verbose) console.log(errormessage);
-            console.log(err); 
+            console.log(err);
             snsqueueModule.getHostName(errormessage);
         });
     }
