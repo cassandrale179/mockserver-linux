@@ -22,13 +22,6 @@ program
     .parse(process.argv);
 
 
-//--------------- FIX AWS PATH -------------
-var AWSPath = "";
-if (process.platform == 'win32')
-    AWSPath = os.homedir() + "\\.aws\\TempCredScript.js --tcws_url=";
-else AWSPath = os.homedir() + "/.aws/TempCredScript.js --tcws_url=";
-
-
 //---------- get instance metadata ------
 function ec2instance(p){
     return new Promise((resolve, reject) => {
@@ -68,7 +61,7 @@ function ec2instance(p){
                 });
             }
             else{
-                let errormessage = '[Error: ] Unable to make a GET request to 169.254.169.254. The error code is ' + resposne.statusCode.toString() + 'and the response is ' + response;
+                let errormessage = '[Error: ] Unable to make a GET request to 169.254.169.254. The error code is ' + response.statusCode.toString() + 'and the response is ' + response;
                 if (program.verbose){
                     console.error(errormessage);
                 }
@@ -112,6 +105,7 @@ function checkFileRole(p, json){
             sts.assumeRole(params, function(err, data) {
                 if (err) console.error("[Error: ] User cannot assume this role", err);
                 else {
+					console.log("[Success: ] Successfully assume role", data.ResponseMetadata);
                     if (data.Credentials){
                         data.Credentials.target = p.target;
                         resolve(data.Credentials);
@@ -161,11 +155,16 @@ function getJSON(args){
             //------- EXTRACT THE TCWS URL FROM THE CREDENTIAL PROCESS -------
             var ind = p.credential_process.indexOf("tcws_url=");
             var url = p.credential_process.substring(ind+9, p.credential_process.length);
-            var command = 'bmsjwt.cmd "--tcws_url=' + url;
+            var command = "";
+            if (process.platform == 'win32') command = 'bmsjwt.cmd "--tcws_url=' + url;
+            else{
+                command = 'bmsjwt "--tcws_url=' + url;
+            }
+            // exec(p.credential_process)
             exec(command)
             .then(localContextFunction(p))
             .catch(err => {
-                let errorMessage = '[Error: ] Unable to execute the credential process associated with this credential ' + p.source;
+                let errorMessage = '[Error: ] Your credential process can not be run for this profile ' + p.source;
                 if (program.verbose) console.error(err);
                 console.error(errorMessage);
                 snsqueueModule.getHostName(errorMessage);
@@ -218,13 +217,16 @@ function getJSON(args){
                 if (program.verbose){
                     console.error('[Error: ] No key received for this json ' + JSON.stringify(json));
                 }
-                snsqueueModule.getHostName('[Error: ] You do not have access to this profile' + args[0]);
+                snsqueueModule.getHostName('[Error: ] You do not have access to this profile ' + args[0].source);
         	    reject2(json);
         	    return;
         	}
 
     	//------------- IF THERE ARE ASSUME ROLE ------------
-            if (args[0].assume_role_arn && json) return checkFileRole(args[0], json);
+            if (args[0].assume_role_arn && json){
+				console.log("This has an assume role arn");
+				return checkFileRole(args[0], json);
+			}
             else return (json);
     	});
     }).catch(err => {
