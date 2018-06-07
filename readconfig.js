@@ -5,7 +5,7 @@ const read_promise = util.promisify(fs.readFile);
 const moment = require('moment');
 const os = require('os');
 const config = os.homedir() + "//.aws/config";
-const snsqueueModule = require('./snsqueue.js');
+const heartbeatModule = require('./heartbeat.js');
 
 //----- OPTIONS PARSING -------
 program
@@ -143,9 +143,10 @@ function read_config(){
                   }
                   else{
                     chain = true;
+                    var linkback =" [Error: ] One of your source profile eventually linked back to itself " + par;
                     if (program.verbose)
-                        console.error('[Error: ] One of your source profile eventually linked back to itself ' + par);
-                    snsqueueModule.getHostName('[Error: ] This source profile eventually linked back to itself ' + par);
+                        console.error(linkback);
+                        heartbeatModule.getHostName(linkback, "warning");
                     break;
                   }
               }
@@ -161,7 +162,7 @@ function read_config(){
         }).catch(err => {
             if (program.verbose) console.error(err);
             console.error('[Error: ] No config file found at .aws folder');
-            snsqueueModule.getHostName('[Error: ] No config file found at .aws folder');
+            heartbeatModule.getHostName('[Error: ] No config file found at .aws folder', "warning");
         });
     });
 }
