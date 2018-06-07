@@ -15,6 +15,7 @@ npm install shorteners
 npm install child_process
 npm install prompt-autocompletion
 npm install commander 
+npm install promise 
 npm install -g mocha
 npm install chai 
 ```
