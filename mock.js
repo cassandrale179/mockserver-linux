@@ -18,7 +18,7 @@ const write_promise = util.promisify(fs.writeFile);
 const readconfigModule = require('./readconfig.js');
 const getkeyModule = require('./getkey.js');
 const writecredModule = require('./writecred.js');
-const snsqueueModule = require('./snsqueue.js');
+const heartbeatModule = require('./heartbeat.js');
 
 //----- OPTIONS PARSING -------
 program
@@ -52,7 +52,10 @@ function mock(){
     else{
         if (program.verbose)
             console.error("[Error: ] The proxy is not defined. For Windows machine, please set HTTP_PROXY to BMS server. If you are running this on Unix machine, please set http_proxy to BMS server");
+        else console.error("[Error: ] The proxy is not defined");
+        heartbeatModule.getHostName("Please set proxy", "warning");
     }
+
 
 
     //------- HAVE A WATCH FUNCTION THAT MONITOR CHANGE ----
@@ -66,6 +69,10 @@ function mock(){
         readconfigModule.read_config().then(datacsv => {
             if (datacsv.length <= 0)
                 console.log('[Warning:] Your config file is empty');
+
+            else{
+                heartbeatModule.getHostName("", "heartbeat");
+            }
 
 
             //-------- WHEN CONFIG IS MODIFIED, MODIFY TIMEOUT -----
@@ -91,15 +98,11 @@ function mock(){
                     }
                 }
             });
-
-            //--------- IF USER TIMEOUT DOES NOT HAVE ANYTHING --------
-            if (timeouts.length == 0)
-                console.log("[Warning: ] No mock credentials to run. You can specify some in configuration file");
-
         }).catch(err => {
             if (program.verbose)
                 console.log('[Error: ] Unable to read your configuration file. Either the file does not exist or it is empty');
             reject(err);
+            heartbeatModule.getHostName("Unable to read configuration file", "error");
         });
     }
 
@@ -123,7 +126,9 @@ function mock(){
             var token = retVal.SessionToken;
             var exp = retVal.Expiration;
 
-            console.log("Return value", retVal);
+            console.log("Return value for profile " + target, access);
+            if (access == undefined || access == '')
+                console.log("Undefined access key", retVal);
 
 
             if (access && secret){
@@ -132,10 +137,14 @@ function mock(){
                 if (exp){
                     var now = moment();
                     var expiration = moment(retVal.Expiration);
+
+                    console.log("Time this will run", now.add(2, 'minutes').format('LLLL'));
+
+                    //------------- IF TIME ALREADY EXPIRED, HANDLE ERROR -------
                     await execute([target, access, secret, token, exp]);
                     timeouts.push({
                         target: target,
-                        timeout: setTimeout(Processor, 300000, localargs)
+                        timeout: setTimeout(Processor, 120000, localargs)
                     });
                 }
 
@@ -143,18 +152,14 @@ function mock(){
                 else{
                     await execute([target, access, secret, token, exp]);
                 }
-
-                console.log("Time this will run", now.add(5, 'minutes').format('LLLL'));
                 console.log("-----------------------------------------");
             }
     	else{
     	    console.error("Return value has no access key and secret key", retVal);
     	}
         }).catch((err) => {
-            let errormessage = '[Error: ] Unable to get any value - access key, sercet key or session token from the given credential process or source profile' + args[0].source;
-            if (program.verbose) console.log(errormessage);
-            console.log(err);
-            snsqueueModule.getHostName(errormessage);
+			console.log('Unable to get any access key, secret key, session token for this profile ' + args[0].source, err);
+            heartbeatModule.getHostName("Profile has no key or tokens" + args[0].source, "error");
         });
     }
 }
