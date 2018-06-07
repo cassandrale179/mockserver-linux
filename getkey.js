@@ -9,7 +9,8 @@ const AWS = require('aws-sdk');
 const tunnel = require('tunnel');
 const url = 'http://169.254.169.254/latest/meta-data/iam/security-credentials/';
 const http = require('http');
-const snsqueueModule = require('./snsqueue.js');
+const heartbeatModule = require('./heartbeat.js');
+
 
 //----------- TURN ON PROCESS TO CATCH UNHANDLED PROMISE ----------
 process.on('unhandledRejection', (reason, p) => {console.log(p);});
@@ -54,7 +55,7 @@ function ec2instance(p){
                     else{
                         if (program.verbose)
                             console.error('[Error: ] Unable to get data with this role' + role);
-                        snsqueueModule.getHostName('[Error: ] Unable to get data with this role ' + role);
+                        heartbeatModule.getHostName("Unable to get data with this role" + role, "error");
                         reject(role);
                         return;
                     }
@@ -65,7 +66,7 @@ function ec2instance(p){
                 if (program.verbose){
                     console.error(errormessage);
                 }
-                snsqueueModule.getHostName(errormessage);
+                heartbeatModule.getHostName(errormessage, "error");
                 reject(response);
                 return;
             }
@@ -103,7 +104,13 @@ function checkFileRole(p, json){
 
             //----------- GET DATA FROM STS --------
             sts.assumeRole(params, function(err, data) {
-                if (err) console.error("[Error: ] User cannot assume this role", err);
+                if (err && err.code == 'ExpiredToken'){
+                    console.error('Expired Token for this profile ', p);
+                    console.log('Current time', new Date());
+                }
+                else if (err){
+                    console.error("[Error: ] User cannot assume this role", err);
+                }
                 else {
 					console.log("[Success: ] Successfully assume role", data.ResponseMetadata);
                     if (data.Credentials){
@@ -113,7 +120,7 @@ function checkFileRole(p, json){
                     else{
                         if (program.verbose)
                             console.error('[Error: ] Cannot get credentials with this roleArn ' + p.assume_role_arn);
-                        snsqueueModule.getHostName('[Error: ] Cannot get credentials with this roleArn ' + p.assume_role_arn);
+                        heartbeatModule.getHostName("Unable to get credentials with this roleArn" + p.assume_role_arn, "error");
                         reject(params);
                     }
                 }
@@ -167,7 +174,7 @@ function getJSON(args){
                 let errorMessage = '[Error: ] Your credential process can not be run for this profile ' + p.source;
                 if (program.verbose) console.error(err);
                 console.error(errorMessage);
-                snsqueueModule.getHostName(errorMessage);
+                heartbeatModule.getHostName(errorMessage, "error");
             });
         }
 
@@ -190,7 +197,7 @@ function getJSON(args){
             let unfoundprocess = '[Error: ] credential_source, source_profile or credential_process not found for ' + p;
             if (program.verbose)
                 console.error(unfoundprocess);
-            snsqueueModule.getHostName(unfoundprocess);
+            heartbeatModule.getHostName(unfoundprocess, "warning");
             reject(p);
             return;
         }
@@ -217,7 +224,7 @@ function getJSON(args){
                 if (program.verbose){
                     console.error('[Error: ] No key received for this json ' + JSON.stringify(json));
                 }
-                snsqueueModule.getHostName('[Error: ] You do not have access to this profile ' + args[0].source);
+                heartbeatModule.getHostName("Unable to get access to this profile " + args[0].source, "error");
         	    reject2(json);
         	    return;
         	}
