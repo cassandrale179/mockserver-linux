@@ -3,7 +3,7 @@ const util = require('util');
 const moment = require('moment');
 const os = require('os');
 const program = require('commander');
-const snsqueueModule = require('./snsqueue.js');
+const heartbeatModule = require('./heartbeat.js');
 const read_promise = util.promisify(fs.readFile);
 const write_promise = util.promisify(fs.writeFile);
 
@@ -74,7 +74,8 @@ async function writeFile(args){
     }
     else{
         console.error('[Error: ] Unable to create a new credentials file');
-        snsqueueModule.getHostName('[Error: ] No credentials file found and unable to create a blank credential file');
+        heartbeatModule.getHostName("Unable to create a new credential file", "fatal");
+
     }
 }
 
