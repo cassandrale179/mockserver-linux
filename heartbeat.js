@@ -13,10 +13,11 @@ function getIP(){
 		var ifaces = os.networkInterfaces();
 		Object.keys(ifaces).forEach(ifname => {
 			var alias = 0;
-			if ('IPv4' !== iface.family || iface.internal !== false) {
-			  return;
-			}
 			ifaces[ifname].forEach(iface => {
+				if ('IPv4' !== iface.family || iface.internal !== false) {
+				  return;
+				}
+
 				if (alias >= 1) {
 				  // this single interface has multiple ipv4 addresses
 				  console.log(ifname + ':' + alias, iface.address);
@@ -50,7 +51,7 @@ function getHostName(_error, errorType){
 				if(error.code=="ESOCKETTIMEDOUT" || error.code=="ETIMEDOUT"){
 
 					//window os
-					if(errorType=="heartbeat") self.heartBeat(hostname,ip);
+					if(errorType=="heartbeat") heartBeat(hostname,ip);
 					else sendNotification(_error,hostname,ip,errorType);
 				}
 
@@ -66,8 +67,10 @@ function getHostName(_error, errorType){
 
 		//If there is no error, that means heartbeat is good
 			else{
-				  if(errorType=="heartbeat") heartBeat(hostname,ip);
-				  else self.sendNotification(_error,hostname,ip,errorType);
+				  if(errorType=="heartbeat"){
+					  heartBeat(hostname,ip);
+				  }
+				  else sendNotification(_error,hostname,ip,errorType);
 			}
 		});
 	});
@@ -112,6 +115,7 @@ function sendNotification(_error,hostname,ip,errorType){
 
 //--------- SEND HEART BEAT -------------
 function heartBeat(hostname,ip){
+	console.log("Getting host name for heartbeat");
     var msg={
         "server":hostname,
         "ip":ip,
@@ -130,7 +134,7 @@ function heartBeat(hostname,ip){
 
         request(options, function (error, response, body) {
 			if (error) console.log(error);
-			console.log("Response from heartbeat", repsonse);
+			console.log("Response from heartbeat", body);
         });
     });
 }
