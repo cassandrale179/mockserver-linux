@@ -12,6 +12,7 @@
     "child_process": "^1.0.2",
     "commander": "^2.15.1",
     "moment": "^2.22.1",
+    "promise": "^8.0.1",
     "prompt-autocompletion": "^0.1.2",
     "request": "^2.85.0",
     "shorteners": "^1.0.0",
